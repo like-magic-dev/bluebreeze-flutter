@@ -8,7 +8,6 @@ plugins {
 android {
     namespace = "dev.likemagic.bluebreeze_flutter_example"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

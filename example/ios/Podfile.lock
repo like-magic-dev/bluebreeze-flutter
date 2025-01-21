@@ -1,0 +1,35 @@
+PODS:
+  - BlueBreeze (0.0.5)
+  - bluebreeze_flutter (0.0.1):
+    - BlueBreeze (~> 0.0.5)
+    - Flutter
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - bluebreeze_flutter (from `.symlinks/plugins/bluebreeze_flutter/ios`)
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - BlueBreeze
+
+EXTERNAL SOURCES:
+  bluebreeze_flutter:
+    :path: ".symlinks/plugins/bluebreeze_flutter/ios"
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  BlueBreeze: 16abd6b62a7eaa782eebc9b4fe7fa1666e6506ea
+  bluebreeze_flutter: 39ab90e333df3a1b543d4ed17b912996c6c4bb2c
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+
+COCOAPODS: 1.16.2

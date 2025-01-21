@@ -1,7 +1,6 @@
 package dev.likemagic.bluebreeze_flutter
 
-import androidx.annotation.NonNull
-
+import dev.likemagic.bluebreeze.BBManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -16,14 +15,18 @@ class BluebreezeFlutterPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
 
+  private lateinit var manager: BBManager
+
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "bluebreeze_flutter")
     channel.setMethodCallHandler(this)
+
+    manager = BBManager(flutterPluginBinding.applicationContext)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
+      result.success("Android ${android.os.Build.VERSION.RELEASE} ${manager.authorizationStatus.value.string}")
     } else {
       result.notImplemented()
     }
