@@ -1,0 +1,4 @@
+enum BBDeviceConnectionStatus {
+  disconnected,
+  connected,
+}

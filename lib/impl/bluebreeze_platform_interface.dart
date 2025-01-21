@@ -1,5 +1,9 @@
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluebreeze_method_channel.dart';
@@ -31,5 +35,72 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<BBAuthorization> get authorizationStatusStream;
 
-  Future<void> authorizationRequest();
+  Future authorizationRequest();
+
+  // Scanning
+
+  bool get scanningEnabled;
+
+  Stream<bool> get scanningEnabledStream;
+
+  Future scanningStart();
+
+  Future scanningStop();
+
+  // Devices
+
+  List<BBDevice> get devices;
+
+  Stream<List<BBDevice>> get devicesStream;
+
+  // Device services
+
+  List<BBService> deviceServices(String id);
+
+  Stream<List<BBService>> deviceServicesStream(String id);
+
+  // Device connection status
+
+  BBDeviceConnectionStatus deviceConnectionStatus(String id);
+
+  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id);
+
+  // Device MTU
+
+  int deviceMTU(String id);
+
+  Stream<int> deviceMTUStream(String id);
+
+  // Device operation
+
+  Future deviceConnect(String id);
+
+  Future deviceDisconnect(String id);
+
+  Future deviceDiscoverServices(String id);
+
+  Future<int> deviceRequestMTU(String id, int mtu);
+
+  // Device characteristic data
+
+  Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId);
+
+  Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId);
+
+  // Device characteristic notify enabled
+
+  bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId);
+
+  Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId);
+
+  // Device characteristic operations
+
+  Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId);
+
+  Future deviceCharacteristicWrite(
+      String id, String serviceId, String characteristicId, Uint8List data, bool withResponse);
+
+  Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
+
+  Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
 }
