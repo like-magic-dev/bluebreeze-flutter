@@ -1,0 +1,6 @@
+{
+    "dart": {
+        "lineLength": 120,
+        "saveActions.organizeImports": true,
+    }
+}
