@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 
 import 'impl/bluebreeze_platform_interface.dart';
@@ -20,4 +20,20 @@ class BBManager {
   Stream<BBAuthorization> get authorizationStatusStream => BlueBreezePlatform.instance.authorizationStatusStream;
 
   Future authorizationRequest() => BlueBreezePlatform.instance.authorizationRequest();
+
+  // Scanning
+
+  bool get scanningEnabled => BlueBreezePlatform.instance.scanningEnabled;
+
+  Stream<bool> get scanningEnabledStream => BlueBreezePlatform.instance.scanningEnabledStream;
+
+  Future scanningStart() => BlueBreezePlatform.instance.scanningStart();
+
+  Future scanningStop() => BlueBreezePlatform.instance.scanningStop();
+
+  // Devices
+
+  Map<String, BBDevice> get devices => BlueBreezePlatform.instance.devices;
+
+  Stream<Map<String, BBDevice>> get devicesStream => BlueBreezePlatform.instance.devicesStream;
 }

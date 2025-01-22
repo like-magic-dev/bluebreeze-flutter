@@ -1,6 +1,11 @@
 {
-    "dart": {
-        "lineLength": 120,
-        "saveActions.organizeImports": true,
-    }
+  "dart.lineLength": 150,
+  "dart.enableSdkFormatter": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.sortImports": "explicit",
+    "source.organizeImports": "explicit"
+  }
 }

@@ -1,54 +1,46 @@
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+import 'package:bluebreeze_flutter_example/offline.dart';
+import 'package:bluebreeze_flutter_example/permissions.dart';
+import 'package:bluebreeze_flutter_example/scanning.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final manager = BBManager();
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  final _manager = BBManager();
-
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              StreamBuilder(
-                stream: _manager.stateStream,
-                builder: (builderContext, snapshot) {
-                  return Text('State: ${_manager.state.name}');
-                },
-              ),
-              StreamBuilder(
-                stream: _manager.authorizationStatusStream,
-                builder: (builderContext, snapshot) {
-                  return Text('Authorization: ${_manager.authorizationStatus.name}');
-                },
-              ),
-              TextButton(
-                onPressed: () => _manager.authorizationRequest(),
-                child: const Text('Request Authorization'),
-              )
-            ],
-          ),
-        ),
+      home: StreamBuilder(
+        stream: widget.manager.authorizationStatusStream,
+        builder: (builderContext, snapshot) {
+          if (widget.manager.authorizationStatus != BBAuthorization.authorized) {
+            return PermissionsWidget(manager: widget.manager);
+          } else {
+            return StreamBuilder(
+              stream: widget.manager.stateStream,
+              builder: (builderContext, snapshot) {
+                if (widget.manager.state != BBState.poweredOn) {
+                  return const OfflineWidget();
+                } else {
+                  return ScanningWidget(manager: widget.manager);
+                }
+              },
+            );
+          }
+        },
       ),
     );
   }

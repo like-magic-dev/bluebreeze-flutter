@@ -1,9 +1,23 @@
-import 'dart:async';
 import 'dart:ffi';
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+import 'package:flutter/foundation.dart';
 
-import 'impl/bluebreeze_platform_interface.dart';
+class BBDevice {
+  BBDevice({
+    required this.id,
+    required this.name,
+  });
 
-class BBDevice {}
+  final String id;
+  final String? name;
+
+  int rssi = 0;
+  var isConnectable = false;
+
+  Map<Uint8, Uint8List> advertisementData = {};
+
+  List<String> advertisedServices = [];
+
+  int? manufacturerId;
+  String? manufacturerName;
+}

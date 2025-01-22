@@ -1,11 +1,33 @@
 import 'dart:async';
 
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'bluebreeze_platform_interface.dart';
+
+class _ValueStreamController<T> {
+  final _controller = StreamController<T>.broadcast();
+  T _value;
+
+  _ValueStreamController({
+    required T initialValue,
+  }) : _value = initialValue;
+
+  T get value => _value;
+  Stream<T> get stream => _controller.stream;
+
+  void add(T value) {
+    this._value = value;
+    _controller.sink.add(value);
+  }
+
+  void close() {
+    _controller.close();
+  }
+}
 
 class MethodChannelBlueBreeze extends BlueBreezePlatform {
   @visibleForTesting
@@ -19,17 +41,36 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Future<dynamic> methodCallHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'stateUpdate':
-        state = BBState.values.firstWhere(
-          (v) => (v.name == methodCall.arguments['name']),
+        _stateStreamController.add(
+          BBState.values.firstWhere(
+            (v) => (v.name == methodCall.arguments['name']),
+          ),
         );
-        _stateStreamController.sink.add(state);
         return;
 
       case 'authorizationStatusUpdate':
-        authorizationStatus = BBAuthorization.values.firstWhere(
-          (v) => (v.name == methodCall.arguments['name']),
+        _authorizationStatusStreamController.add(
+          BBAuthorization.values.firstWhere(
+            (v) => (v.name == methodCall.arguments['name']),
+          ),
         );
-        _authorizationStatusStreamController.sink.add(authorizationStatus);
+        return;
+
+      case 'devicesUpdate':
+        final devices = _devicesStreamController.value;
+        methodCall.arguments['devices'].forEach((device) {
+          devices[device['id']] ??= BBDevice(
+            id: device['id'],
+            name: device['name'],
+          );
+          devices[device['id']]?.rssi = device['rssi'];
+          devices[device['id']]?.isConnectable = device['isConnectable'];
+          // devices[device['id']]?.advertisementData = Map<Uint8, Uint8List>.from(device['advertisementData']);
+          // devices[device['id']]?.advertisedServices = List<String>.from(device['advertisedServices']);
+          devices[device['id']]?.manufacturerId = device['manufacturerId'];
+          devices[device['id']]?.manufacturerName = device['manufacturerName'];
+        });
+        _devicesStreamController.add(devices);
         return;
 
       default:
@@ -41,25 +82,119 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   // State
 
-  final _stateStreamController = StreamController<BBState>.broadcast();
+  final _stateStreamController = _ValueStreamController<BBState>(initialValue: BBState.unknown);
 
   @override
-  BBState state = BBState.unknown;
+  BBState get state => _stateStreamController.value;
 
   @override
   Stream<BBState> get stateStream => _stateStreamController.stream;
 
   // Authorization
 
-  final _authorizationStatusStreamController = StreamController<BBAuthorization>.broadcast();
+  final _authorizationStatusStreamController = _ValueStreamController<BBAuthorization>(initialValue: BBAuthorization.unknown);
 
   @override
-  BBAuthorization authorizationStatus = BBAuthorization.unknown;
+  BBAuthorization get authorizationStatus => _authorizationStatusStreamController.value;
 
   @override
   Stream<BBAuthorization> get authorizationStatusStream => _authorizationStatusStreamController.stream;
 
   @override
   Future<void> authorizationRequest() => methodChannel.invokeMethod('authorizationRequest');
-  // methodChannel.invokeMethod('permissionsCheck').cast<String>();
+
+  // Scanning
+
+  final _scanningEnabled = _ValueStreamController<bool>(initialValue: false);
+
+  @override
+  bool get scanningEnabled => _scanningEnabled._value;
+
+  @override
+  Stream<bool> get scanningEnabledStream => _scanningEnabled.stream;
+
+  @override
+  Future scanningStart() => methodChannel.invokeMethod('scanningStart');
+
+  @override
+  Future scanningStop() => methodChannel.invokeMethod('scanningStop');
+
+  // Devices
+
+  final _devicesStreamController = _ValueStreamController<Map<String, BBDevice>>(initialValue: {});
+
+  @override
+  Map<String, BBDevice> get devices => _devicesStreamController.value;
+
+  @override
+  Stream<Map<String, BBDevice>> get devicesStream => _devicesStreamController.stream;
+
+  // // Device services
+
+  // @override
+  // List<BBService> deviceServices(String id) => throw UnimplementedError();
+
+  // @override
+  // Stream<List<BBService>> deviceServicesStream(String id) => throw UnimplementedError();
+
+  // // Device connection status
+
+  // @override
+  // BBDeviceConnectionStatus deviceConnectionStatus(String id) => throw UnimplementedError();
+
+  // @override
+  // Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) => throw UnimplementedError();
+
+  // // Device MTU
+
+  // @override
+  // int deviceMTU(String id) => throw UnimplementedError();
+
+  // @override
+  // Stream<int> deviceMTUStream(String id) => throw UnimplementedError();
+
+  // // Device operation
+
+  // @override
+  // Future deviceConnect(String id) => throw UnimplementedError();
+
+  // @override
+  // Future deviceDisconnect(String id) => throw UnimplementedError();
+
+  // @override
+  // Future deviceDiscoverServices(String id) => throw UnimplementedError();
+
+  // @override
+  // Future<int> deviceRequestMTU(String id, int mtu) => throw UnimplementedError();
+
+  // // Device characteristic data
+
+  // @override
+  // Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // @override
+  // Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // // Device characteristic notify enabled
+
+  // @override
+  // bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // @override
+  // Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // // Device characteristic operations
+
+  // @override
+  // Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // @override
+  // Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List data, bool withResponse) =>
+  //     throw UnimplementedError();
+
+  // @override
+  // Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+
+  // @override
+  // Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) => throw UnimplementedError();
 }
