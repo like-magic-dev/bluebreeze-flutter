@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import 'dart:typed_data';
+
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
@@ -87,11 +89,11 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Future<int> deviceRequestMTU(String id, int mtu);
 
-  // // Device characteristic data
+  // Device characteristic data
 
-  // Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId);
+  Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId);
 
-  // Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId);
+  Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId);
 
   // // Device characteristic notify enabled
 
@@ -99,9 +101,9 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId);
 
-  // // Device characteristic operations
+  // Device characteristic operations
 
-  // Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId);
+  Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId);
 
   // Future deviceCharacteristicWrite(
   //     String id, String serviceId, String characteristicId, Uint8List data, bool withResponse);

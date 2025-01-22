@@ -14,6 +14,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
 
     var dispatchBag: Set<AnyCancellable> = []
     var dispatchBagDevices: Set<UUID> = []
+    var dispatchBagCharacteristics: [UUID: Set<BBUUID>] = [:]
 
     init(channel: FlutterMethodChannel) {
         self.channel = channel
@@ -65,12 +66,38 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         
         device.services
             .receive(on: DispatchQueue.main)
-            .sink { self.reportDeviceServices(device.id, $0) }
+            .sink {
+                $0.forEach { service in
+                    service.value.forEach { characteristic in
+                        self.initCharacteristic(device, service.key, characteristic)
+                    }
+                }
+                self.reportDeviceServices(device.id, $0)
+            }
             .store(in: &dispatchBag)
         
         device.mtu
             .receive(on: DispatchQueue.main)
             .sink { self.reportDeviceMTU(device.id, $0) }
+            .store(in: &dispatchBag)
+    }
+    
+    private func initCharacteristic(_ device: BBDevice, _ serviceId: BBUUID, _ characteristic: BBCharacteristic) {
+        guard dispatchBagCharacteristics[device.id]?.contains(characteristic.id) != true else {
+            return
+        }
+        
+        dispatchBagCharacteristics[device.id] = dispatchBagCharacteristics[device.id] ?? []
+        dispatchBagCharacteristics[device.id]?.insert(characteristic.id)
+        
+        characteristic.isNotifying
+            .receive(on: DispatchQueue.main)
+            .sink { self.reportDeviceCharacteristicIsNotifying(device.id, serviceId, characteristic.id, $0) }
+            .store(in: &dispatchBag)
+
+        characteristic.data
+            .receive(on: DispatchQueue.main)
+            .sink { self.reportDeviceCharacteristicData(device.id, serviceId, characteristic.id, $0) }
             .store(in: &dispatchBag)
     }
 
@@ -163,7 +190,6 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                 }
             }
             
-        
         case "deviceRequestMTU":
             guard let arguments = call.arguments as? [String: Any],
                   let uuidString = arguments["id"] as? String,
@@ -184,70 +210,124 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                 }
             }
             
+        case "deviceCharacteristicRead":
+            guard let arguments = call.arguments as? [String: Any],
+                  let uuidString = arguments["id"] as? String,
+                  let uuid = UUID(uuidString: uuidString),
+                  let device = manager.devices.value[uuid],
+                  let serviceUuidString = arguments["serviceId"] as? String,
+                  let characteristicUuidString = arguments["characteristicId"] as? String
+            else {
+                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                return
+            }
+            
+            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
+                  let characteristic = service.first(where: { $0.id == BBUUID(string: characteristicUuidString) })
+            else {
+                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                return
+            }
+
+            Task {
+                do {
+                    try await characteristic.read()
+                    result(Data())
+                } catch {
+                    result(FlutterError(code: "Error", message: nil, details: nil))
+                }
+            }
+            
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
-    private func reportState(_ state: BBState) {
-        channel.invokeMethod("stateUpdate", arguments: ["name": "\(state)"])
-    }
-    
-    private func reportAuthorizationStatus(_ authorizationStatus: BBAuthorization) {
+    private func reportState(_ value: BBState) {
         channel.invokeMethod(
-            "authorizationStatusUpdate", arguments: ["name": "\(authorizationStatus)"])
-    }
-    
-    private func reportScanningEnabled(_ scanningEnabled: Bool) {
-        channel.invokeMethod(
-            "scanningEnabledUpdate", arguments: ["value": scanningEnabled]
+            "stateUpdate", arguments: [
+                "value": "\(value)"
+            ]
         )
     }
     
-    private func reportScanningDevice(_ device: BBDevice) {
+    private func reportAuthorizationStatus(_ value: BBAuthorization) {
         channel.invokeMethod(
-            "scanningDevicesUpdate", arguments: device.toFlutter
+            "authorizationStatusUpdate", arguments: [
+                "value": "\(value)"
+            ]
         )
     }
     
-    private func reportDevices(_ devices: [UUID: BBDevice]) {
+    private func reportScanningEnabled(_ value: Bool) {
+        channel.invokeMethod(
+            "scanningEnabledUpdate", arguments: [
+                "value": value
+            ]
+        )
+    }
+    
+    private func reportScanningDevice(_ value: BBDevice) {
+        channel.invokeMethod(
+            "scanningDevicesUpdate", arguments: [
+                "value": value.toFlutter
+            ]
+        )
+    }
+    
+    private func reportDevices(_ value: [UUID: BBDevice]) {
         channel.invokeMethod(
             "devicesUpdate", arguments: [
-                "devices": devices.values.map { $0.toFlutter }
+                "value": value.values.map { $0.toFlutter }
             ]
         )
     }
     
-    private func reportDeviceConnectionStatus(_ id: UUID, _ connectionStatus: BBDeviceConnectionStatus) {
+    private func reportDeviceConnectionStatus(_ deviceId: UUID, _ value: BBDeviceConnectionStatus) {
         channel.invokeMethod(
             "deviceConnectionStatusUpdate", arguments: [
-                "id": id.uuidString,
-                "connectionStatus": "\(connectionStatus)"
+                "deviceId": deviceId.uuidString,
+                "value": "\(value)"
             ]
         )
     }
     
-    private func reportDeviceServices(_ id: UUID, _ services: [BBUUID: [BBCharacteristic]]) {
+    private func reportDeviceServices(_ deviceId: UUID, _ value: [BBUUID: [BBCharacteristic]]) {
         channel.invokeMethod(
             "deviceServicesUpdate", arguments: [
-                "id": id.uuidString,
-                "services": services.map {[
-                    "id": $0.key.uuidString,
-                    "name": BBConstants.knownServices[$0.key] as Any,
-                    "characteristics": $0.value.map {[
-                        "id": $0.id.uuidString,
-                        "name": BBConstants.knownCharacteristics[$0.id]
-                    ]}
-                ]}
+                "deviceId": deviceId.uuidString,
+                "value": value.toFlutter
             ]
         )
     }
     
-    private func reportDeviceMTU(_ id: UUID, _ mtu: Int) {
+    private func reportDeviceMTU(_ deviceId: UUID, _ value: Int) {
         channel.invokeMethod(
             "deviceMTUUpdate", arguments: [
-                "id": id.uuidString,
-                "mtu": mtu
+                "deviceId": deviceId.uuidString,
+                "value": value
+            ]
+        )
+    }
+    
+    private func reportDeviceCharacteristicIsNotifying(_ deviceId: UUID, _ serviceId: BBUUID, _ characteristicId: BBUUID, _ value: Bool) {
+        channel.invokeMethod(
+            "deviceCharacteristicIsNotifyingUpdate", arguments: [
+                "deviceId": deviceId.uuidString,
+                "serviceId": serviceId.uuidString,
+                "characteristicId": characteristicId.uuidString,
+                "value": value
+            ]
+        )
+    }
+    
+    private func reportDeviceCharacteristicData(_ deviceId: UUID, _ serviceId: BBUUID, _ characteristicId: BBUUID, _ value: Data) {
+        channel.invokeMethod(
+            "deviceCharacteristicDataUpdate", arguments: [
+                "deviceId": deviceId.uuidString,
+                "serviceId": serviceId.uuidString,
+                "characteristicId": characteristicId.uuidString,
+                "value": value.toFlutter
             ]
         )
     }
@@ -265,6 +345,30 @@ extension BBDevice {
                 "manufacturerId": manufacturerId as Any,
                 "manufacturerString": manufacturerName as Any,
                 "manufacturerData": manufacturerData?.toFlutter as Any
+            ]
+        }
+    }
+}
+
+extension [BBUUID: [BBCharacteristic]] {
+    var toFlutter: [Dictionary<String, Any>] {
+        get {
+            return map{[
+                "id": $0.key.uuidString,
+                "name": BBConstants.knownServices[$0.key] as Any,
+                "characteristics": $0.value.map { $0.toFlutter }
+            ]}
+        }
+    }
+}
+
+extension BBCharacteristic {
+    var toFlutter: Dictionary<String, Any> {
+        get {
+            return [
+                "id": id.uuidString,
+                "name": BBConstants.knownCharacteristics[id] as Any,
+                "properties": properties.map { "\($0)" }
             ]
         }
     }

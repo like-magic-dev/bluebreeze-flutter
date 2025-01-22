@@ -5,6 +5,7 @@
 
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter_example/characteristic.dart';
 import 'package:flutter/material.dart';
 
 class DeviceWidget extends StatefulWidget {
@@ -55,44 +56,47 @@ class DeviceWidgetState extends State<DeviceWidget> {
         ],
       ),
       body: StreamBuilder(
-          stream: widget.device.servicesStream,
-          builder: (builderContext, snapshot) {
-            final services = widget.device.services;
-            return ListView.builder(
-              itemCount: services.length,
-              itemBuilder: (context, index) {
-                final service = services[index];
-                return ListTile(
-                  title: Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          service.name ?? service.id,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: service.characteristics.length,
-                          itemBuilder: (context, index) {
-                            final characteristic = service.characteristics[index];
-                            return Text(
-                              characteristic.name ?? characteristic.id,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          },
-                        )
-                      ],
+        stream: widget.device.servicesStream,
+        builder: (builderContext, snapshot) {
+          final services = widget.device.services;
+          services.sort((a, b) => a.id.compareTo(b.id));
+
+          return ListView.builder(
+            itemCount: services.length,
+            itemBuilder: (context, index) {
+              final service = services[index];
+              final characteristics = service.characteristics;
+              characteristics.sort((a, b) => a.id.compareTo(b.id));
+
+              return Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        service.name ?? service.id,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          }),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: characteristics.length,
+                      itemBuilder: (context, index) {
+                        final characteristic = characteristics[index];
+                        return CharacteristicWidget(characteristic: characteristic);
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

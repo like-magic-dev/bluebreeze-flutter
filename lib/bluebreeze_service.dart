@@ -14,5 +14,6 @@ class BBService {
 
   final String id;
   final String? name;
+
   final List<BBCharacteristic> characteristics;
 }
