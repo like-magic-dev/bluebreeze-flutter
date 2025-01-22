@@ -1,4 +1,5 @@
 import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
+import 'package:bluebreeze_flutter_example/device.dart';
 import 'package:flutter/material.dart';
 
 class ScanningWidget extends StatefulWidget {
@@ -66,6 +67,13 @@ class ScanningWidgetState extends State<ScanningWidget> {
                 trailing: Text(
                   devices[index].rssi.toString(),
                   style: const TextStyle(fontSize: 18),
+                ),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (builderContext) => DeviceWidget(
+                      device: devices[index],
+                    ),
+                  ),
                 ),
               ),
             );
