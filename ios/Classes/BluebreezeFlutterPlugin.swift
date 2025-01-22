@@ -256,7 +256,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                   let device = manager.devices.value[uuid],
                   let serviceUuidString = arguments["serviceId"] as? String,
                   let characteristicUuidString = arguments["characteristicId"] as? String,
-                  let value = arguments["value"] as? Data,
+                  let value = arguments["value"] as? FlutterStandardTypedData,
                   let withResponse = arguments["withResponse"] as? Bool
             else {
                 result(FlutterError(code: "Bad arguments", message: nil, details: nil))
@@ -272,7 +272,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
 
             Task {
                 do {
-                    try await characteristic.write(value, withResponse: withResponse)
+                    try await characteristic.write(value.data, withResponse: withResponse)
                     result([:])
                 } catch {
                     result(FlutterError(code: "Error", message: nil, details: nil))

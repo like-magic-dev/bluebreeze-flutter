@@ -61,10 +61,49 @@ class CharacteristicWidgetState extends State<CharacteristicWidget> {
               if (widget.characteristic.properties.contains(BBCharacteristicProperty.writeWithResponse) ||
                   widget.characteristic.properties.contains(BBCharacteristicProperty.writeWithoutResponse))
                 TextButton(
-                  onPressed: () => widget.characteristic.write(
-                    data: Uint8List.fromList([0x01, 0x02, 0x03]),
-                    withResponse: true,
-                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (builderContext) {
+                        Uint8List? writeData;
+                        return AlertDialog(
+                          title: const Text('Write'),
+                          content: TextField(
+                            decoration: const InputDecoration(
+                              hintText: 'Enter data',
+                            ),
+                            onChanged: (text) {
+                              writeData = text.hexData;
+                            },
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(builderContext).pop();
+                              },
+                              child: const Text('CANCEL'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                final writeData_ = writeData;
+                                if (writeData_ == null) {
+                                  return;
+                                }
+
+                                widget.characteristic.write(
+                                  data: writeData_,
+                                  withResponse: true,
+                                );
+
+                                Navigator.of(builderContext).pop();
+                              },
+                              child: const Text('WRITE'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                   child: const Text('WRITE'),
                 ),
               if (widget.characteristic.properties.contains(BBCharacteristicProperty.notify))
@@ -96,4 +135,19 @@ extension on Uint8List {
   String get hexString => map(
         (byte) => byte.toRadixString(16).padLeft(2, '0').toUpperCase(),
       ).join();
+}
+
+extension on String {
+  Uint8List? get hexData {
+    try {
+      return Uint8List.fromList(
+        splitMapJoin(
+          RegExp(r'[0-9A-Fa-f]{2}'),
+          onMatch: (match) => String.fromCharCode(int.parse(match.group(0)!, radix: 16)),
+        ).codeUnits,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }
