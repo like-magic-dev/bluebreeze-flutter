@@ -13,8 +13,8 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
     let manager = BBManager()
 
     var dispatchBag: Set<AnyCancellable> = []
-    var dispatchBagDevices: Set<UUID> = []
-    var dispatchBagCharacteristics: [UUID: Set<BBUUID>] = [:]
+    var dispatchBagDevices: [UUID: Set<AnyCancellable>] = [:]
+    var dispatchBagServices: [UUID: [BBUUID: [BBUUID: Set<AnyCancellable>]]] = [:]
 
     init(channel: FlutterMethodChannel) {
         self.channel = channel
@@ -53,52 +53,63 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
     }
     
     private func initDevice(_ device: BBDevice) {
-        guard !dispatchBagDevices.contains(device.id) else {
+        guard dispatchBagDevices[device.id] == nil else {
             return
         }
         
-        dispatchBagDevices.insert(device.id)
-        
+        dispatchBagDevices[device.id] = []
+                        
         device.connectionStatus
             .receive(on: DispatchQueue.main)
             .sink { self.reportDeviceConnectionStatus(device.id, $0) }
-            .store(in: &dispatchBag)
+            .store(in: &dispatchBagDevices[device.id]!)
         
         device.services
             .receive(on: DispatchQueue.main)
             .sink {
-                $0.forEach { service in
-                    service.value.forEach { characteristic in
-                        self.initCharacteristic(device, service.key, characteristic)
-                    }
-                }
+                self.initServices(device, $0)
                 self.reportDeviceServices(device.id, $0)
             }
-            .store(in: &dispatchBag)
+            .store(in: &dispatchBagDevices[device.id]!)
         
         device.mtu
             .receive(on: DispatchQueue.main)
             .sink { self.reportDeviceMTU(device.id, $0) }
-            .store(in: &dispatchBag)
+            .store(in: &dispatchBagDevices[device.id]!)
     }
     
-    private func initCharacteristic(_ device: BBDevice, _ serviceId: BBUUID, _ characteristic: BBCharacteristic) {
-        guard dispatchBagCharacteristics[device.id]?.contains(characteristic.id) != true else {
-            return
-        }
-        
-        dispatchBagCharacteristics[device.id] = dispatchBagCharacteristics[device.id] ?? []
-        dispatchBagCharacteristics[device.id]?.insert(characteristic.id)
-        
-        characteristic.isNotifying
-            .receive(on: DispatchQueue.main)
-            .sink { self.reportDeviceCharacteristicIsNotifying(device.id, serviceId, characteristic.id, $0) }
-            .store(in: &dispatchBag)
+    private func initServices(_ device: BBDevice, _ services: [BBUUID: [BBCharacteristic]]) {
+        // Clean up device data by removing missing services
+        dispatchBagServices[device.id] = dispatchBagServices[device.id]?.filter({ key, value in
+            services[key] != nil
+        }) ?? [:]
+                
+        // Init all existing services
+        services.forEach { serviceId, value in
+            // Clean up service data by removing missing characteristics
+            dispatchBagServices[device.id]![serviceId] = dispatchBagServices[device.id]![serviceId]?.filter({ key, _ in
+                value.first(where: { $0.id == key }) != nil
+            }) ?? [:]
+            
+            // Init all existing characteristics
+            value.forEach { characteristic in
+                guard dispatchBagServices[device.id]![serviceId]![characteristic.id] == nil else {
+                    return
+                }
+                
+                dispatchBagServices[device.id]![serviceId]![characteristic.id] = []
+                
+                characteristic.isNotifying
+                    .receive(on: DispatchQueue.main)
+                    .sink { self.reportDeviceCharacteristicIsNotifying(device.id, serviceId, characteristic.id, $0) }
+                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.id]!)
 
-        characteristic.data
-            .receive(on: DispatchQueue.main)
-            .sink { self.reportDeviceCharacteristicData(device.id, serviceId, characteristic.id, $0) }
-            .store(in: &dispatchBag)
+                characteristic.data
+                    .receive(on: DispatchQueue.main)
+                    .sink { self.reportDeviceCharacteristicData(device.id, serviceId, characteristic.id, $0) }
+                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.id]!)
+            }
+        }
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
