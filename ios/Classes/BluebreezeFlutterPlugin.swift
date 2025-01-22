@@ -22,7 +22,12 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             .receive(on: DispatchQueue.main)
             .sink { self.reportAuthorizationStatus($0) }
             .store(in: &dispatchBag)
-
+        
+        manager.isScanning
+            .receive(on: DispatchQueue.main)
+            .sink { self.reportScanningEnabled($0) }
+            .store(in: &dispatchBag)
+        
         manager.devices
             .receive(on: DispatchQueue.main)
             .sink { self.reportDevices($0) }
@@ -43,6 +48,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         case "initialize":
             reportState(manager.state.value)
             reportAuthorizationStatus(manager.authorizationStatus.value)
+            reportScanningEnabled(manager.isScanning.value)
             reportDevices(manager.devices.value)
             result([:])
         case "authorizationRequest":
@@ -62,10 +68,16 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
     private func reportState(_ state: BBState) {
         channel.invokeMethod("stateUpdate", arguments: ["name": "\(state)"])
     }
-
+    
     private func reportAuthorizationStatus(_ authorizationStatus: BBAuthorization) {
         channel.invokeMethod(
             "authorizationStatusUpdate", arguments: ["name": "\(authorizationStatus)"])
+    }
+    
+    private func reportScanningEnabled(_ scanningEnabled: Bool) {
+        channel.invokeMethod(
+            "scanningEnabledUpdate", arguments: ["value": scanningEnabled]
+        )
     }
 
     private func reportDevices(_ devices: [UUID: BBDevice]) {

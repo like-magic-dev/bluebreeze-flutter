@@ -56,6 +56,12 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         );
         return;
 
+      case 'scanningEnabledUpdate':
+        _scanningEnabledStreamController.add(
+          methodCall.arguments['value'],
+        );
+        return;
+
       case 'devicesUpdate':
         final devices = _devicesStreamController.value;
         methodCall.arguments['devices'].forEach((device) {
@@ -66,7 +72,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           devices[device['id']]?.rssi = device['rssi'];
           devices[device['id']]?.isConnectable = device['isConnectable'];
           // devices[device['id']]?.advertisementData = Map<Uint8, Uint8List>.from(device['advertisementData']);
-          // devices[device['id']]?.advertisedServices = List<String>.from(device['advertisedServices']);
+          devices[device['id']]?.advertisedServices = List<String>.from(device['advertisedServices']);
           devices[device['id']]?.manufacturerId = device['manufacturerId'];
           devices[device['id']]?.manufacturerName = device['manufacturerName'];
         });
@@ -105,13 +111,13 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   // Scanning
 
-  final _scanningEnabled = _ValueStreamController<bool>(initialValue: false);
+  final _scanningEnabledStreamController = _ValueStreamController<bool>(initialValue: false);
 
   @override
-  bool get scanningEnabled => _scanningEnabled._value;
+  bool get scanningEnabled => _scanningEnabledStreamController._value;
 
   @override
-  Stream<bool> get scanningEnabledStream => _scanningEnabled.stream;
+  Stream<bool> get scanningEnabledStream => _scanningEnabledStreamController.stream;
 
   @override
   Future scanningStart() => methodChannel.invokeMethod('scanningStart');
