@@ -59,12 +59,10 @@ class ScanningWidgetState extends State<ScanningWidget> {
           return ListView.builder(
             itemCount: devices.length,
             itemBuilder: (context, index) => ListTile(
-              title: Expanded(
-                child: Text(
-                  devices[index].name ?? devices[index].id,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              title: Text(
+                devices[index].name ?? devices[index].id,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
