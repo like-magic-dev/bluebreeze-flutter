@@ -87,7 +87,7 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Future deviceDiscoverServices(String id);
 
-  Future<int> deviceRequestMTU(String id, int mtu);
+  Future<int> deviceRequestMTU(String id, int value);
 
   // Device characteristic data
 
@@ -95,20 +95,19 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId);
 
-  // // Device characteristic notify enabled
+  // Device characteristic notify enabled
 
-  // bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId);
+  bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId);
 
-  // Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId);
+  Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId);
 
   // Device characteristic operations
 
   Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId);
 
-  // Future deviceCharacteristicWrite(
-  //     String id, String serviceId, String characteristicId, Uint8List data, bool withResponse);
+  Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse);
 
-  // Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
+  Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
 
-  // Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
+  Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
 }

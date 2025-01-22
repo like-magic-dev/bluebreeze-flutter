@@ -290,26 +290,35 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   @override
   Future deviceConnect(String id) => methodChannel.invokeMethod(
         'deviceConnect',
-        {'id': id},
+        {
+          'deviceId': id,
+        },
       );
 
   @override
   Future deviceDisconnect(String id) => methodChannel.invokeMethod(
         'deviceDisconnect',
-        {'id': id},
+        {
+          'deviceId': id,
+        },
       );
 
   @override
   Future deviceDiscoverServices(String id) => methodChannel.invokeMethod(
         'deviceDiscoverServices',
-        {'id': id},
+        {
+          'deviceId': id,
+        },
       );
 
   @override
-  Future<int> deviceRequestMTU(String id, int mtu) async {
+  Future<int> deviceRequestMTU(String id, int value) async {
     final result = await methodChannel.invokeMethod(
       'deviceRequestMTU',
-      {'id': id, 'mtu': mtu},
+      {
+        'deviceId': id,
+        'value': value,
+      },
     );
     return result;
   }
@@ -345,7 +354,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     final result = await methodChannel.invokeMethod(
       'deviceCharacteristicRead',
       {
-        'id': id,
+        'deviceId': id,
         'serviceId': serviceId,
         'characteristicId': characteristicId,
       },
@@ -353,13 +362,36 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     return result;
   }
 
-  // @override
-  // Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List data, bool withResponse) =>
-  //     throw UnimplementedError();
+  @override
+  Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse) =>
+      methodChannel.invokeMethod(
+        'deviceCharacteristicWrite',
+        {
+          'deviceId': id,
+          'serviceId': serviceId,
+          'characteristicId': characteristicId,
+          'value': value,
+          'withResponse': withResponse,
+        },
+      );
 
-  // @override
-  // Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+  @override
+  Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId) => methodChannel.invokeMethod(
+        'deviceCharacteristicSubscribe',
+        {
+          'deviceId': id,
+          'serviceId': serviceId,
+          'characteristicId': characteristicId,
+        },
+      );
 
-  // @override
-  // Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) => throw UnimplementedError();
+  @override
+  Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) => methodChannel.invokeMethod(
+        'deviceCharacteristicUnsubscribe',
+        {
+          'deviceId': id,
+          'serviceId': serviceId,
+          'characteristicId': characteristicId,
+        },
+      );
 }

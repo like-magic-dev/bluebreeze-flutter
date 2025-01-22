@@ -19,6 +19,7 @@ class BBCharacteristic {
 
   final String deviceId;
   final String serviceId;
+
   final String id;
   final String? name;
 
@@ -30,11 +31,23 @@ class BBCharacteristic {
 
   Stream<Uint8List> get dataStream => BlueBreezePlatform.instance.deviceCharacteristicDataStream(deviceId, serviceId, id);
 
+  // Notifications
+
+  bool get notifyEnabled => BlueBreezePlatform.instance.deviceCharacteristicNotifyEnabled(deviceId, serviceId, id);
+
+  Stream<bool> get notifyEnabledStream => BlueBreezePlatform.instance.deviceCharacteristicNotifyEnabledStream(deviceId, serviceId, id);
+
   // Operations
 
   Future read() => BlueBreezePlatform.instance.deviceCharacteristicRead(deviceId, serviceId, id);
 
-  Future write() async {}
-  Future subscribe() async {}
-  Future unsubscribe() async {}
+  Future write({
+    required Uint8List data,
+    bool withResponse = false,
+  }) =>
+      BlueBreezePlatform.instance.deviceCharacteristicWrite(deviceId, serviceId, id, data, withResponse);
+
+  Future subscribe() => BlueBreezePlatform.instance.deviceCharacteristicSubscribe(deviceId, serviceId, id);
+
+  Future unsubscribe() => BlueBreezePlatform.instance.deviceCharacteristicUnsubscribe(deviceId, serviceId, id);
 }

@@ -133,7 +133,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             
         case "deviceConnect":
             guard let arguments = call.arguments as? [String: Any],
-                  let uuidString = arguments["id"] as? String,
+                  let uuidString = arguments["deviceId"] as? String,
                   let uuid = UUID(uuidString: uuidString),
                   let device = manager.devices.value[uuid]
             else {
@@ -153,7 +153,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         
         case "deviceDisconnect":
             guard let arguments = call.arguments as? [String: Any],
-                  let uuidString = arguments["id"] as? String,
+                  let uuidString = arguments["deviceId"] as? String,
                   let uuid = UUID(uuidString: uuidString),
                   let device = manager.devices.value[uuid]
             else {
@@ -173,7 +173,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         
         case "deviceDiscoverServices":
             guard let arguments = call.arguments as? [String: Any],
-                  let uuidString = arguments["id"] as? String,
+                  let uuidString = arguments["deviceId"] as? String,
                   let uuid = UUID(uuidString: uuidString),
                   let device = manager.devices.value[uuid]
             else {
@@ -192,10 +192,10 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             
         case "deviceRequestMTU":
             guard let arguments = call.arguments as? [String: Any],
-                  let uuidString = arguments["id"] as? String,
+                  let uuidString = arguments["deviceId"] as? String,
                   let uuid = UUID(uuidString: uuidString),
                   let device = manager.devices.value[uuid],
-                  let mtu = arguments["mtu"] as? Int
+                  let mtu = arguments["value"] as? Int
             else {
                 result(FlutterError(code: "Bad arguments", message: nil, details: nil))
                 return
@@ -212,7 +212,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             
         case "deviceCharacteristicRead":
             guard let arguments = call.arguments as? [String: Any],
-                  let uuidString = arguments["id"] as? String,
+                  let uuidString = arguments["deviceId"] as? String,
                   let uuid = UUID(uuidString: uuidString),
                   let device = manager.devices.value[uuid],
                   let serviceUuidString = arguments["serviceId"] as? String,
@@ -233,6 +233,92 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                 do {
                     try await characteristic.read()
                     result(Data())
+                } catch {
+                    result(FlutterError(code: "Error", message: nil, details: nil))
+                }
+            }
+            
+        case "deviceCharacteristicWrite":
+            guard let arguments = call.arguments as? [String: Any],
+                  let uuidString = arguments["deviceId"] as? String,
+                  let uuid = UUID(uuidString: uuidString),
+                  let device = manager.devices.value[uuid],
+                  let serviceUuidString = arguments["serviceId"] as? String,
+                  let characteristicUuidString = arguments["characteristicId"] as? String,
+                  let value = arguments["value"] as? Data,
+                  let withResponse = arguments["withResponse"] as? Bool
+            else {
+                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                return
+            }
+            
+            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
+                  let characteristic = service.first(where: { $0.id == BBUUID(string: characteristicUuidString) })
+            else {
+                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                return
+            }
+
+            Task {
+                do {
+                    try await characteristic.write(value, withResponse: withResponse)
+                    result([:])
+                } catch {
+                    result(FlutterError(code: "Error", message: nil, details: nil))
+                }
+            }
+            
+        case "deviceCharacteristicSubscribe":
+            guard let arguments = call.arguments as? [String: Any],
+                  let uuidString = arguments["deviceId"] as? String,
+                  let uuid = UUID(uuidString: uuidString),
+                  let device = manager.devices.value[uuid],
+                  let serviceUuidString = arguments["serviceId"] as? String,
+                  let characteristicUuidString = arguments["characteristicId"] as? String
+            else {
+                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                return
+            }
+            
+            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
+                  let characteristic = service.first(where: { $0.id == BBUUID(string: characteristicUuidString) })
+            else {
+                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                return
+            }
+
+            Task {
+                do {
+                    try await characteristic.subscribe()
+                    result([:])
+                } catch {
+                    result(FlutterError(code: "Error", message: nil, details: nil))
+                }
+            }
+            
+        case "deviceCharacteristicUnsubscribe":
+            guard let arguments = call.arguments as? [String: Any],
+                  let uuidString = arguments["deviceId"] as? String,
+                  let uuid = UUID(uuidString: uuidString),
+                  let device = manager.devices.value[uuid],
+                  let serviceUuidString = arguments["serviceId"] as? String,
+                  let characteristicUuidString = arguments["characteristicId"] as? String
+            else {
+                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                return
+            }
+            
+            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
+                  let characteristic = service.first(where: { $0.id == BBUUID(string: characteristicUuidString) })
+            else {
+                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                return
+            }
+
+            Task {
+                do {
+                    try await characteristic.unsubscribe()
+                    result([:])
                 } catch {
                     result(FlutterError(code: "Error", message: nil, details: nil))
                 }

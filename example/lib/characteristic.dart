@@ -61,13 +61,28 @@ class CharacteristicWidgetState extends State<CharacteristicWidget> {
               if (widget.characteristic.properties.contains(BBCharacteristicProperty.writeWithResponse) ||
                   widget.characteristic.properties.contains(BBCharacteristicProperty.writeWithoutResponse))
                 TextButton(
-                  onPressed: () => widget.characteristic.write(),
+                  onPressed: () => widget.characteristic.write(
+                    data: Uint8List.fromList([0x01, 0x02, 0x03]),
+                    withResponse: true,
+                  ),
                   child: const Text('WRITE'),
                 ),
               if (widget.characteristic.properties.contains(BBCharacteristicProperty.notify))
-                TextButton(
-                  onPressed: () => widget.characteristic.subscribe(),
-                  child: const Text('SUBSCRIBE'),
+                StreamBuilder(
+                  stream: widget.characteristic.notifyEnabledStream,
+                  builder: (builderContext, snapshot) {
+                    if (widget.characteristic.notifyEnabled) {
+                      return TextButton(
+                        onPressed: () => widget.characteristic.unsubscribe(),
+                        child: const Text('UNSUBSCRIBE'),
+                      );
+                    } else {
+                      return TextButton(
+                        onPressed: () => widget.characteristic.subscribe(),
+                        child: const Text('SUBSCRIBE'),
+                      );
+                    }
+                  },
                 ),
             ],
           ),
