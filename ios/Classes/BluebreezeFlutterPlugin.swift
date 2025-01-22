@@ -32,6 +32,11 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             .receive(on: DispatchQueue.main)
             .sink { self.reportScanningDevice($0) }
             .store(in: &dispatchBag)
+        
+        manager.devices
+            .receive(on: DispatchQueue.main)
+            .sink { self.reportDevices($0) }
+            .store(in: &dispatchBag)
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -85,10 +90,10 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         )
     }
     
-    private func reportDevice(_ devices: [BBDevice]) {
+    private func reportDevices(_ devices: [UUID: BBDevice]) {
         channel.invokeMethod(
             "devicesUpdate", arguments: [
-                "devices": devices.map { $0.dict }
+                "devices": devices.values.map { $0.dict }
             ]
         )
     }
