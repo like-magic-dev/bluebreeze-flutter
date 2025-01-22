@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
+import 'package:bluebreeze_flutter/bluebreeze_characteristic.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
 import 'package:bluebreeze_flutter/bluebreeze_service.dart';
@@ -77,6 +78,41 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         _devicesStreamController.add(devices);
         return;
 
+      case 'deviceConnectionStatusUpdate':
+        final value = _deviceConnectionStatusStreamController.value;
+        value[methodCall.arguments['id']] = BBDeviceConnectionStatus.values.firstWhere(
+          (v) => (v.name == methodCall.arguments['connectionStatus']),
+        );
+        _deviceConnectionStatusStreamController.add(value);
+        return;
+
+      case 'deviceServicesUpdate':
+        final value = _deviceServicesStreamController.value;
+        value[methodCall.arguments['id']] = List<BBService>.from(
+          methodCall.arguments['services'].map(
+            (data) => BBService(
+              id: data['id'],
+              name: data['name'],
+              characteristics: List<BBCharacteristic>.from(
+                data['characteristics'].map(
+                  (data) => BBCharacteristic(
+                    id: data['id'],
+                    name: data['name'],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        _deviceServicesStreamController.add(value);
+        return;
+
+      case 'deviceMTUUpdate':
+        final value = _deviceMTUStatusStreamController.value;
+        value[methodCall.arguments['id']] = methodCall.arguments['mtu'];
+        _deviceMTUStatusStreamController.add(value);
+        return;
+
       default:
         if (kDebugMode) {
           print('Unprocessed event ${methodCall.method} with payload ${methodCall.arguments}');
@@ -123,7 +159,9 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBAuthorization> get authorizationStatusStream => _authorizationStatusStreamController.stream;
 
   @override
-  Future<void> authorizationRequest() => methodChannel.invokeMethod('authorizationRequest');
+  Future<void> authorizationRequest() async {
+    methodChannel.invokeMethod('authorizationRequest');
+  }
 
   // Scanning
 
@@ -141,10 +179,14 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBDevice> get scanningDevicesStream => _scanningDevicesStreamController.stream;
 
   @override
-  Future scanningStart() => methodChannel.invokeMethod('scanningStart');
+  Future scanningStart() async {
+    methodChannel.invokeMethod('scanningStart');
+  }
 
   @override
-  Future scanningStop() => methodChannel.invokeMethod('scanningStop');
+  Future scanningStop() async {
+    methodChannel.invokeMethod('scanningStop');
+  }
 
   // Devices
 
@@ -188,19 +230,40 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   @override
   Stream<int> deviceMTUStream(String id) => _deviceMTUStatusStreamController.stream.map((v) => (v[id] ?? 0));
 
-  // // Device operation
+  // Device operation
 
-  // @override
-  // Future deviceConnect(String id) => throw UnimplementedError();
+  @override
+  Future deviceConnect(String id) async {
+    methodChannel.invokeMethod(
+      'deviceConnect',
+      {'id': id},
+    );
+  }
 
-  // @override
-  // Future deviceDisconnect(String id) => throw UnimplementedError();
+  @override
+  Future deviceDisconnect(String id) async {
+    methodChannel.invokeMethod(
+      'deviceDisconnect',
+      {'id': id},
+    );
+  }
 
-  // @override
-  // Future deviceDiscoverServices(String id) => throw UnimplementedError();
+  @override
+  Future deviceDiscoverServices(String id) async {
+    await methodChannel.invokeMethod(
+      'deviceDiscoverServices',
+      {'id': id},
+    );
+  }
 
-  // @override
-  // Future<int> deviceRequestMTU(String id, int mtu) => throw UnimplementedError();
+  @override
+  Future<int> deviceRequestMTU(String id, int mtu) async {
+    final result = await methodChannel.invokeMethod(
+      'deviceRequestMTU',
+      {'id': id, 'mtu': mtu},
+    );
+    return result;
+  }
 
   // // Device characteristic data
 

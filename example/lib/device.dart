@@ -1,4 +1,5 @@
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
 import 'package:flutter/material.dart';
 
 class DeviceWidget extends StatefulWidget {
@@ -14,63 +15,79 @@ class DeviceWidget extends StatefulWidget {
 }
 
 class DeviceWidgetState extends State<DeviceWidget> {
+  Future connect() async {
+    await widget.device.connect();
+    await widget.device.discoverServices();
+    await widget.device.requestMTU(255);
+  }
+
+  Future disconnect() async {
+    await widget.device.disconnect();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.device.name ?? widget.device.id),
-        actions: const [
-          // StreamBuilder(
-          //   stream: widget.device.scanningEnabledStream,
-          //   builder: (builderContext, snapshot) {
-          //     if (widget.manager.scanningEnabled) {
-          //       return TextButton(
-          //         onPressed: () => widget.manager.scanningStop(),
-          //         child: const Text("STOP"),
-          //       );
-          //     } else {
-          //       return TextButton(
-          //         onPressed: () => widget.manager.scanningStart(),
-          //         child: const Text("START"),
-          //       );
-          //     }
-          //   },
-          // ),
+        actions: [
+          StreamBuilder(
+            stream: widget.device.connectionStatusStream,
+            builder: (builderContext, snapshot) {
+              if (widget.device.connectionStatus == BBDeviceConnectionStatus.connected) {
+                return TextButton(
+                  onPressed: () => disconnect(),
+                  child: const Text("DISCONNECT"),
+                );
+              } else {
+                return TextButton(
+                  onPressed: () => connect(),
+                  child: const Text("CONNECT"),
+                );
+              }
+            },
+          ),
         ],
       ),
-      body: Container(),
-      // StreamBuilder(
-      //   stream: widget.manager.devicesStream,
-      //   builder: (builderContext, snapshot) {
-      //     final devices = widget.manager.devices.values.toList();
-      //     return ListView.builder(
-      //       itemCount: devices.length,
-      //       itemBuilder: (context, index) => ListTile(
-      //         title: Expanded(
-      //           child: Text(
-      //             devices[index].name ?? devices[index].id,
-      //             maxLines: 1,
-      //             overflow: TextOverflow.ellipsis,
-      //           ),
-      //         ),
-      //         subtitle: Column(
-      //           crossAxisAlignment: CrossAxisAlignment.start,
-      //           children: [
-      //             Text(devices[index].manufacturerName ?? '-'),
-      //             if (devices[index].advertisedServices.isNotEmpty)
-      //               Text(
-      //                 devices[index].advertisedServices.join(', '),
-      //                 style: const TextStyle(fontSize: 14),
-      //               ),
-      //           ],
-      //         ),
-      //         trailing: Text(
-      //           devices[index].rssi.toString(),
-      //           style: const TextStyle(fontSize: 18),
-      //         ),
-      //       ),
-      //     );
-      //   }),
+      body: StreamBuilder(
+          stream: widget.device.servicesStream,
+          builder: (builderContext, snapshot) {
+            final services = widget.device.services;
+            return ListView.builder(
+              itemCount: services.length,
+              itemBuilder: (context, index) {
+                final service = services[index];
+                return ListTile(
+                  title: Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          service.name ?? service.id,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: service.characteristics.length,
+                          itemBuilder: (context, index) {
+                            final characteristic = service.characteristics[index];
+                            return Text(
+                              characteristic.name ?? characteristic.id,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
     );
   }
 }

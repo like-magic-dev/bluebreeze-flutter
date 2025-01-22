@@ -1,9 +1,13 @@
-import 'dart:async';
-import 'dart:ffi';
+import 'package:bluebreeze_flutter/bluebreeze_characteristic.dart';
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+class BBService {
+  BBService({
+    required this.id,
+    required this.name,
+    required this.characteristics,
+  });
 
-import 'impl/bluebreeze_platform_interface.dart';
-
-class BBService {}
+  final String id;
+  final String? name;
+  final List<BBCharacteristic> characteristics;
+}

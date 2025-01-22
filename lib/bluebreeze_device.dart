@@ -26,9 +26,9 @@ class BBDevice {
 
   // Services
 
-  List<BBService> get state => BlueBreezePlatform.instance.deviceServices(id);
+  List<BBService> get services => BlueBreezePlatform.instance.deviceServices(id);
 
-  Stream<List<BBService>> get stateStream => BlueBreezePlatform.instance.deviceServicesStream(id);
+  Stream<List<BBService>> get servicesStream => BlueBreezePlatform.instance.deviceServicesStream(id);
 
   // Connection status
 
@@ -41,4 +41,14 @@ class BBDevice {
   int get mtu => BlueBreezePlatform.instance.deviceMTU(id);
 
   Stream<int> get mtuStream => BlueBreezePlatform.instance.deviceMTUStream(id);
+
+  // Operations
+
+  Future connect() => BlueBreezePlatform.instance.deviceConnect(id);
+
+  Future disconnect() => BlueBreezePlatform.instance.deviceDisconnect(id);
+
+  Future discoverServices() => BlueBreezePlatform.instance.deviceDiscoverServices(id);
+
+  Future<int> requestMTU(int mtu) => BlueBreezePlatform.instance.deviceRequestMTU(id, mtu);
 }
