@@ -1,5 +1,7 @@
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -40,6 +42,8 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<bool> get scanningEnabledStream;
 
+  Stream<BBDevice> get scanningDevicesStream;
+
   Future scanningStart();
 
   Future scanningStop();
@@ -50,23 +54,23 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<Map<String, BBDevice>> get devicesStream;
 
-  // // Device services
+  // Device services
 
-  // List<BBService> deviceServices(String id);
+  List<BBService> deviceServices(String id);
 
-  // Stream<List<BBService>> deviceServicesStream(String id);
+  Stream<List<BBService>> deviceServicesStream(String id);
 
-  // // Device connection status
+  // Device connection status
 
-  // BBDeviceConnectionStatus deviceConnectionStatus(String id);
+  BBDeviceConnectionStatus deviceConnectionStatus(String id);
 
-  // Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id);
+  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id);
 
-  // // Device MTU
+  // Device MTU
 
-  // int deviceMTU(String id);
+  int deviceMTU(String id);
 
-  // Stream<int> deviceMTUStream(String id);
+  Stream<int> deviceMTUStream(String id);
 
   // // Device operation
 

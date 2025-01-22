@@ -1,5 +1,8 @@
 import 'dart:ffi';
 
+import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_service.dart';
+import 'package:bluebreeze_flutter/impl/bluebreeze_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
 class BBDevice {
@@ -20,4 +23,22 @@ class BBDevice {
 
   int? manufacturerId;
   String? manufacturerName;
+
+  // Services
+
+  List<BBService> get state => BlueBreezePlatform.instance.deviceServices(id);
+
+  Stream<List<BBService>> get stateStream => BlueBreezePlatform.instance.deviceServicesStream(id);
+
+  // Connection status
+
+  BBDeviceConnectionStatus get connectionStatus => BlueBreezePlatform.instance.deviceConnectionStatus(id);
+
+  Stream<BBDeviceConnectionStatus> get connectionStatusStream => BlueBreezePlatform.instance.deviceConnectionStatusStream(id);
+
+  // Device MTU
+
+  int get mtu => BlueBreezePlatform.instance.deviceMTU(id);
+
+  Stream<int> get mtuStream => BlueBreezePlatform.instance.deviceMTUStream(id);
 }

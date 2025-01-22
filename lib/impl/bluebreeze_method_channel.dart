@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
+import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -62,19 +64,15 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         );
         return;
 
+      case 'scanningDevicesUpdate':
+        final device = _updateDevice(methodCall.arguments);
+        _scanningDevicesStreamController.add(device);
+        return;
+
       case 'devicesUpdate':
         final devices = _devicesStreamController.value;
-        methodCall.arguments['devices'].forEach((device) {
-          devices[device['id']] ??= BBDevice(
-            id: device['id'],
-            name: device['name'],
-          );
-          devices[device['id']]?.rssi = device['rssi'];
-          devices[device['id']]?.isConnectable = device['isConnectable'];
-          // devices[device['id']]?.advertisementData = Map<Uint8, Uint8List>.from(device['advertisementData']);
-          devices[device['id']]?.advertisedServices = List<String>.from(device['advertisedServices']);
-          devices[device['id']]?.manufacturerId = device['manufacturerId'];
-          devices[device['id']]?.manufacturerName = device['manufacturerName'];
+        methodCall.arguments['devices'].forEach((data) {
+          devices[data['id']] = _updateDevice(data);
         });
         _devicesStreamController.add(devices);
         return;
@@ -84,6 +82,24 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           print('Unprocessed event ${methodCall.method} with payload ${methodCall.arguments}');
         }
     }
+  }
+
+  BBDevice _updateDevice(dynamic data) {
+    final deviceId = data['id'];
+    final device = devices[deviceId] ??
+        BBDevice(
+          id: deviceId,
+          name: data['name'],
+        );
+
+    device.rssi = data['rssi'];
+    device.isConnectable = data['isConnectable'];
+    // device.advertisementData = methodCall.arguments<Uint8, Uint8List>.from(device['advertisementData']);
+    device.advertisedServices = List<String>.from(data['advertisedServices']);
+    device.manufacturerId = data['manufacturerId'];
+    device.manufacturerName = data['manufacturerName'];
+
+    return device;
   }
 
   // State
@@ -119,6 +135,11 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   @override
   Stream<bool> get scanningEnabledStream => _scanningEnabledStreamController.stream;
 
+  final _scanningDevicesStreamController = StreamController<BBDevice>.broadcast();
+
+  @override
+  Stream<BBDevice> get scanningDevicesStream => _scanningDevicesStreamController.stream;
+
   @override
   Future scanningStart() => methodChannel.invokeMethod('scanningStart');
 
@@ -135,29 +156,37 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   @override
   Stream<Map<String, BBDevice>> get devicesStream => _devicesStreamController.stream;
 
-  // // Device services
+  // Device services
 
-  // @override
-  // List<BBService> deviceServices(String id) => throw UnimplementedError();
+  final _deviceServicesStreamController = _ValueStreamController<Map<String, List<BBService>>>(initialValue: {});
 
-  // @override
-  // Stream<List<BBService>> deviceServicesStream(String id) => throw UnimplementedError();
+  @override
+  List<BBService> deviceServices(String id) => _deviceServicesStreamController.value[id] ?? [];
 
-  // // Device connection status
+  @override
+  Stream<List<BBService>> deviceServicesStream(String id) => _deviceServicesStreamController.stream.map((v) => (v[id] ?? []));
 
-  // @override
-  // BBDeviceConnectionStatus deviceConnectionStatus(String id) => throw UnimplementedError();
+  // Device connection status
 
-  // @override
-  // Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) => throw UnimplementedError();
+  final _deviceConnectionStatusStreamController = _ValueStreamController<Map<String, BBDeviceConnectionStatus>>(initialValue: {});
 
-  // // Device MTU
+  @override
+  BBDeviceConnectionStatus deviceConnectionStatus(String id) =>
+      _deviceConnectionStatusStreamController.value[id] ?? BBDeviceConnectionStatus.disconnected;
 
-  // @override
-  // int deviceMTU(String id) => throw UnimplementedError();
+  @override
+  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) =>
+      _deviceConnectionStatusStreamController.stream.map((v) => (v[id] ?? BBDeviceConnectionStatus.disconnected));
 
-  // @override
-  // Stream<int> deviceMTUStream(String id) => throw UnimplementedError();
+  // Device MTU
+
+  final _deviceMTUStatusStreamController = _ValueStreamController<Map<String, int>>(initialValue: {});
+
+  @override
+  int deviceMTU(String id) => _deviceMTUStatusStreamController.value[id] ?? 0;
+
+  @override
+  Stream<int> deviceMTUStream(String id) => _deviceMTUStatusStreamController.stream.map((v) => (v[id] ?? 0));
 
   // // Device operation
 

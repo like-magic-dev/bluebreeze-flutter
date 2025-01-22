@@ -27,6 +27,8 @@ class BBManager {
 
   Stream<bool> get scanningEnabledStream => BlueBreezePlatform.instance.scanningEnabledStream;
 
+  Stream<BBDevice> get scanningDevicesStream => BlueBreezePlatform.instance.scanningDevicesStream;
+
   Future scanningStart() => BlueBreezePlatform.instance.scanningStart();
 
   Future scanningStop() => BlueBreezePlatform.instance.scanningStop();

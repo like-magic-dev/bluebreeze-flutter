@@ -23,14 +23,14 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             .sink { self.reportAuthorizationStatus($0) }
             .store(in: &dispatchBag)
         
-        manager.isScanning
+        manager.scanningEnabled
             .receive(on: DispatchQueue.main)
             .sink { self.reportScanningEnabled($0) }
             .store(in: &dispatchBag)
         
-        manager.devices
+        manager.scanningDevices
             .receive(on: DispatchQueue.main)
-            .sink { self.reportDevices($0) }
+            .sink { self.reportScanningDevice($0) }
             .store(in: &dispatchBag)
     }
 
@@ -48,8 +48,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         case "initialize":
             reportState(manager.state.value)
             reportAuthorizationStatus(manager.authorizationStatus.value)
-            reportScanningEnabled(manager.isScanning.value)
-            reportDevices(manager.devices.value)
+            reportScanningEnabled(manager.scanningEnabled.value)
             result([:])
         case "authorizationRequest":
             manager.authorizationRequest()
@@ -79,22 +78,35 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             "scanningEnabledUpdate", arguments: ["value": scanningEnabled]
         )
     }
-
-    private func reportDevices(_ devices: [UUID: BBDevice]) {
+    
+    private func reportScanningDevice(_ device: BBDevice) {
+        channel.invokeMethod(
+            "scanningDevicesUpdate", arguments: device.dict
+        )
+    }
+    
+    private func reportDevice(_ devices: [BBDevice]) {
         channel.invokeMethod(
             "devicesUpdate", arguments: [
-                "devices": devices.values.map {
-                    [
-                        "id": $0.id.uuidString,
-                        "name": $0.name as Any,
-                        "rssi": $0.rssi,
-                        "isConnectable": $0.isConnectable,
+                "devices": devices.map { $0.dict }
+            ]
+        )
+    }
+}
+
+extension BBDevice {
+    var dict: Dictionary<String, Any> {
+        get {
+            return [
+                "id": id.uuidString,
+                "name": name as Any,
+                "rssi": rssi,
+                "isConnectable": isConnectable,
 //                        "advertisementData": $0.advertisementData,
-                        "advertisedServices": $0.advertisedServices.map(\.uuidString),
-                        "manufacturerId": $0.manufacturerId as Any,
-                        "manufacturerString": $0.manufacturerName as Any
-                    ]
-                }
-            ])
+                "advertisedServices": advertisedServices.map(\.uuidString),
+                "manufacturerId": manufacturerId as Any,
+                "manufacturerString": manufacturerName as Any
+            ]
+        }
     }
 }
