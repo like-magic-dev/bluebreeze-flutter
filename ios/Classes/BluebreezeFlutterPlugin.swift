@@ -206,14 +206,14 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
     
     private func reportScanningDevice(_ device: BBDevice) {
         channel.invokeMethod(
-            "scanningDevicesUpdate", arguments: device.dict
+            "scanningDevicesUpdate", arguments: device.toFlutter
         )
     }
     
     private func reportDevices(_ devices: [UUID: BBDevice]) {
         channel.invokeMethod(
             "devicesUpdate", arguments: [
-                "devices": devices.values.map { $0.dict }
+                "devices": devices.values.map { $0.toFlutter }
             ]
         )
     }
@@ -233,7 +233,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                 "id": id.uuidString,
                 "services": services.map {[
                     "id": $0.key.uuidString,
-                    "name": BBConstants.knownServices[$0.key],
+                    "name": BBConstants.knownServices[$0.key] as Any,
                     "characteristics": $0.value.map {[
                         "id": $0.id.uuidString,
                         "name": BBConstants.knownCharacteristics[$0.id]
@@ -254,18 +254,26 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
 }
 
 extension BBDevice {
-    var dict: Dictionary<String, Any> {
+    var toFlutter: Dictionary<String, Any> {
         get {
             return [
                 "id": id.uuidString,
                 "name": name as Any,
                 "rssi": rssi,
                 "isConnectable": isConnectable,
-//                        "advertisementData": $0.advertisementData,
                 "advertisedServices": advertisedServices.map(\.uuidString),
                 "manufacturerId": manufacturerId as Any,
-                "manufacturerString": manufacturerName as Any
+                "manufacturerString": manufacturerName as Any,
+                "manufacturerData": manufacturerData?.toFlutter as Any
             ]
+        }
+    }
+}
+
+extension Data {
+    var toFlutter: FlutterStandardTypedData {
+        get {
+            return FlutterStandardTypedData(bytes: self)
         }
     }
 }

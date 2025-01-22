@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'dart:ffi';
-
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
 import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/impl/bluebreeze_platform_interface.dart';
@@ -22,12 +20,11 @@ class BBDevice {
   int rssi = 0;
   var isConnectable = false;
 
-  Map<Uint8, Uint8List> advertisementData = {};
-
   List<String> advertisedServices = [];
 
   int? manufacturerId;
   String? manufacturerName;
+  Uint8List? manufacturerData;
 
   // Services
 

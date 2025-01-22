@@ -135,10 +135,10 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
     device.rssi = data['rssi'];
     device.isConnectable = data['isConnectable'];
-    // device.advertisementData = methodCall.arguments<Uint8, Uint8List>.from(device['advertisementData']);
     device.advertisedServices = List<String>.from(data['advertisedServices']);
     device.manufacturerId = data['manufacturerId'];
     device.manufacturerName = data['manufacturerName'];
+    device.manufacturerData = data['manufacturerData'];
 
     return device;
   }
