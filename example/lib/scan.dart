@@ -3,13 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
+import 'package:bluebreeze_flutter/bluebreeze_scan_result.dart';
 import 'package:bluebreeze_flutter_example/device.dart';
 import 'package:flutter/material.dart';
 
-class ScanningWidget extends StatefulWidget {
-  const ScanningWidget({
+class ScanWidget extends StatefulWidget {
+  const ScanWidget({
     required this.manager,
     super.key,
   });
@@ -17,29 +17,29 @@ class ScanningWidget extends StatefulWidget {
   final BBManager manager;
 
   @override
-  State<ScanningWidget> createState() => ScanningWidgetState();
+  State<ScanWidget> createState() => ScanWidgetState();
 }
 
-class ScanningWidgetState extends State<ScanningWidget> {
-  final Map<String, BBDevice> _devices = {};
+class ScanWidgetState extends State<ScanWidget> {
+  final Map<String, BBScanResult> _scanResults = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BLE Scanning'),
+        title: const Text('BLE Scan'),
         actions: [
           StreamBuilder(
-            stream: widget.manager.scanningEnabledStream,
+            stream: widget.manager.scanEnabledStream,
             builder: (builderContext, snapshot) {
-              if (widget.manager.scanningEnabled) {
+              if (widget.manager.scanEnabled) {
                 return TextButton(
-                  onPressed: () => widget.manager.scanningStop(),
+                  onPressed: () => widget.manager.scanStop(),
                   child: const Text("STOP"),
                 );
               } else {
                 return TextButton(
-                  onPressed: () => widget.manager.scanningStart(),
+                  onPressed: () => widget.manager.scanStart(),
                   child: const Text("START"),
                 );
               }
@@ -48,41 +48,41 @@ class ScanningWidgetState extends State<ScanningWidget> {
         ],
       ),
       body: StreamBuilder(
-        stream: widget.manager.scanningDevicesStream.map(
-          (device) {
-            _devices[device.id] = device;
-            return device;
+        stream: widget.manager.scanResultsStream.map(
+          (scanResult) {
+            _scanResults[scanResult.device.id] = scanResult;
+            return scanResult;
           },
         ),
         builder: (builderContext, snapshot) {
-          final devices = _devices.values.toList();
+          final scanResults = _scanResults.values.toList();
           return ListView.builder(
-            itemCount: devices.length,
+            itemCount: scanResults.length,
             itemBuilder: (context, index) => ListTile(
               title: Text(
-                devices[index].name ?? devices[index].id,
+                scanResults[index].device.name ?? scanResults[index].device.id,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(devices[index].manufacturerName ?? '-'),
-                  if (devices[index].advertisedServices.isNotEmpty)
+                  Text(scanResults[index].manufacturerName ?? '-'),
+                  if (scanResults[index].advertisedServices.isNotEmpty)
                     Text(
-                      devices[index].advertisedServices.join(', '),
+                      scanResults[index].advertisedServices.join(', '),
                       style: const TextStyle(fontSize: 14),
                     ),
                 ],
               ),
               trailing: Text(
-                devices[index].rssi.toString(),
+                scanResults[index].rssi.toString(),
                 style: const TextStyle(fontSize: 18),
               ),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (builderContext) => DeviceWidget(
-                    device: devices[index],
+                    device: scanResults[index].device,
                   ),
                 ),
               ),

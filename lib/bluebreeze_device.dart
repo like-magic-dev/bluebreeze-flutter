@@ -6,7 +6,6 @@
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
 import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/impl/bluebreeze_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 
 class BBDevice {
   BBDevice({
@@ -16,15 +15,6 @@ class BBDevice {
 
   final String id;
   final String? name;
-
-  int rssi = 0;
-  var isConnectable = false;
-
-  List<String> advertisedServices = [];
-
-  int? manufacturerId;
-  String? manufacturerName;
-  Uint8List? manufacturerData;
 
   // Services
 
