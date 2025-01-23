@@ -35,11 +35,10 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             .sink { self.reportScanEnabled($0) }
             .store(in: &dispatchBag)
 
-        manager.scanDevices
+        manager.scanResults
             .receive(on: DispatchQueue.main)
             .sink {
-                self.initDevice($0)
-                self.reportScanDevice($0)
+                self.reportScanResult($0)
             }
             .store(in: &dispatchBag)
 
@@ -381,9 +380,9 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         )
     }
 
-    private func reportScanDevice(_ value: BBDevice) {
+    private func reportScanResult(_ value: BBScanResult) {
         channel.invokeMethod(
-            "scanDevicesUpdate",
+            "scanResultUpdate",
             arguments: [
                 "value": value.toFlutter
             ]
@@ -463,8 +462,17 @@ extension BBDevice {
         return [
             "id": id.uuidString,
             "name": name as Any,
+        ]
+    }
+}
+
+extension BBScanResult {
+    var toFlutter: [String: Any] {
+        return [
+            "id": id.uuidString,
+            "name": name as Any,
             "rssi": rssi,
-            "connectable": isConnectable,
+            "connectable": connectable,
             "advertisedServices": advertisedServices.map(\.uuidString),
             "manufacturerId": manufacturerId as Any,
             "manufacturerString": manufacturerName as Any,
