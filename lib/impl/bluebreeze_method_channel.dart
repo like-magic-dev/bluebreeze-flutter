@@ -10,6 +10,7 @@ import 'package:bluebreeze_flutter/bluebreeze_characteristic.dart';
 import 'package:bluebreeze_flutter/bluebreeze_characteristic_property.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_scan_result.dart';
 import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:flutter/foundation.dart';
@@ -65,22 +66,45 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         );
         return;
 
-      case 'scanningEnabledUpdate':
-        _scanningEnabledStreamController.add(
+      case 'scanEnabledUpdate':
+        _scanEnabledStreamController.add(
           methodCall.arguments['value'],
         );
         return;
 
-      case 'scanningDevicesUpdate':
-        final device = _updateDevice(methodCall.arguments['value']);
-        _scanningDevicesStreamController.add(device);
+      case 'scanResultUpdate':
+        final data = methodCall.arguments['value'];
+        if (data == null) {
+          return;
+        }
+
+        final device = devices[data['id']];
+        if (device == null) {
+          return;
+        }
+
+        final scanResult = BBScanResult(
+          device: device,
+          rssi: data['rssi'],
+          connectable: data['connectable'],
+          advertisedServices: List<String>.from(data['advertisedServices']),
+          manufacturerId: data['manufacturerId'],
+          manufacturerName: data['manufacturerName'],
+          manufacturerData: data['manufacturerData'],
+        );
+        _scanResultsStreamController.add(scanResult);
         return;
 
       case 'devicesUpdate':
         final devices = _devicesStreamController.value;
-        methodCall.arguments['value'].forEach((data) {
-          devices[data['id']] = _updateDevice(data);
-        });
+        methodCall.arguments['value'].forEach(
+          (data) {
+            devices[data['id']] ??= BBDevice(
+              id: data['id'],
+              name: data['name'],
+            );
+          },
+        );
         _devicesStreamController.add(devices);
         return;
 
@@ -175,24 +199,6 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     }
   }
 
-  BBDevice _updateDevice(dynamic data) {
-    final deviceId = data['id'];
-    final device = devices[deviceId] ??
-        BBDevice(
-          id: deviceId,
-          name: data['name'],
-        );
-
-    device.rssi = data['rssi'];
-    device.isConnectable = data['isConnectable'];
-    device.advertisedServices = List<String>.from(data['advertisedServices']);
-    device.manufacturerId = data['manufacturerId'];
-    device.manufacturerName = data['manufacturerName'];
-    device.manufacturerData = data['manufacturerData'];
-
-    return device;
-  }
-
   // State
 
   final _stateStreamController = _ValueStreamController<BBState>(initialValue: BBState.unknown);
@@ -218,29 +224,29 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     methodChannel.invokeMethod('authorizationRequest');
   }
 
-  // Scanning
+  // Scan
 
-  final _scanningEnabledStreamController = _ValueStreamController<bool>(initialValue: false);
-
-  @override
-  bool get scanningEnabled => _scanningEnabledStreamController._value;
+  final _scanEnabledStreamController = _ValueStreamController<bool>(initialValue: false);
 
   @override
-  Stream<bool> get scanningEnabledStream => _scanningEnabledStreamController.stream;
-
-  final _scanningDevicesStreamController = StreamController<BBDevice>.broadcast();
+  bool get scanEnabled => _scanEnabledStreamController._value;
 
   @override
-  Stream<BBDevice> get scanningDevicesStream => _scanningDevicesStreamController.stream;
+  Stream<bool> get scanEnabledStream => _scanEnabledStreamController.stream;
+
+  final _scanResultsStreamController = StreamController<BBScanResult>.broadcast();
 
   @override
-  Future scanningStart() async {
-    methodChannel.invokeMethod('scanningStart');
+  Stream<BBScanResult> get scanResultsStream => _scanResultsStreamController.stream;
+
+  @override
+  Future scanStart() async {
+    methodChannel.invokeMethod('scanStart');
   }
 
   @override
-  Future scanningStop() async {
-    methodChannel.invokeMethod('scanningStop');
+  Future scanStop() async {
+    methodChannel.invokeMethod('scanStop');
   }
 
   // Devices

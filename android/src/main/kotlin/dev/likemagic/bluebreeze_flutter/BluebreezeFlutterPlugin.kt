@@ -5,7 +5,6 @@
 
 package dev.likemagic.bluebreeze_flutter
 
-import BBUUID
 import android.app.Activity
 import android.content.Context
 import dev.likemagic.bluebreeze.BBAuthorization
@@ -14,8 +13,10 @@ import dev.likemagic.bluebreeze.BBConstants
 import dev.likemagic.bluebreeze.BBDevice
 import dev.likemagic.bluebreeze.BBDeviceConnectionStatus
 import dev.likemagic.bluebreeze.BBManager
+import dev.likemagic.bluebreeze.BBScanResult
 import dev.likemagic.bluebreeze.BBService
 import dev.likemagic.bluebreeze.BBState
+import dev.likemagic.bluebreeze.BBUUID
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -104,15 +105,14 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
-            manager.scanningEnabled.collect {
-                reportScanningEnabled(it)
+            manager.scanEnabled.collect {
+                reportScanEnabled(it)
             }
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
-            manager.scanningDevices.collect {
-                initializeDevice(it)
-                reportScanningDevice(it)
+            manager.scanResults.collect {
+                reportScanResult(it)
             }
         }.storeIn(coroutineJobs)
 
@@ -208,7 +208,7 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             "initialize" -> {
                 reportState(manager.state.value)
                 reportAuthorizationStatus(manager.authorizationStatus.value)
-                reportScanningEnabled(manager.scanningEnabled.value)
+                reportScanEnabled(manager.scanEnabled.value)
                 reportDevices(manager.devices.value)
                 result.success(null)
                 return
@@ -225,24 +225,24 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 return
             }
 
-            "scanningStart" -> {
+            "scanStart" -> {
                 val context = activity ?: application ?: run {
                     result.error("Not attached to activity", null, null)
                     return
                 }
 
-                manager.scanningStart(context)
+                manager.scanStart(context)
                 result.success(null)
                 return
             }
 
-            "scanningStop" -> {
+            "scanStop" -> {
                 val context = activity ?: application ?: run {
                     result.error("Not attached to activity", null, null)
                     return
                 }
 
-                manager.scanningStop(context)
+                manager.scanStop(context)
                 result.success(null)
                 return
             }
@@ -429,18 +429,18 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         )
     }
 
-    private fun reportScanningEnabled(value: Boolean) {
+    private fun reportScanEnabled(value: Boolean) {
         channel.invokeMethod(
-            "scanningEnabledUpdate",
+            "scanEnabledUpdate",
             mapOf(
                 "value" to value
             )
         )
     }
 
-    private fun reportScanningDevice(value: BBDevice) {
+    private fun reportScanResult(value: BBScanResult) {
         channel.invokeMethod(
-            "scanningDevicesUpdate",
+            "scanResultUpdate",
             mapOf(
                 "value" to value.toFlutter
             )
@@ -527,8 +527,13 @@ val BBDevice.toFlutter
     get() = mapOf(
         "id" to address,
         "name" to name,
+    )
+
+val BBScanResult.toFlutter
+    get() = mapOf(
+        "id" to address,
         "rssi" to rssi,
-        "isConnectable" to isConnectable,
+        "connectable" to connectable,
         "advertisedServices" to advertisedServices,
         "manufacturerId" to manufacturerId,
         "manufacturerString" to manufacturerName,

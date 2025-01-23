@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device.dart';
 import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_flutter/bluebreeze_scan_result.dart';
 import 'package:bluebreeze_flutter/bluebreeze_service.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -43,17 +44,17 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Future authorizationRequest();
 
-  // Scanning
+  // Scan
 
-  bool get scanningEnabled;
+  bool get scanEnabled;
 
-  Stream<bool> get scanningEnabledStream;
+  Stream<bool> get scanEnabledStream;
 
-  Stream<BBDevice> get scanningDevicesStream;
+  Stream<BBScanResult> get scanResultsStream;
 
-  Future scanningStart();
+  Future scanStart();
 
-  Future scanningStop();
+  Future scanStop();
 
   // Devices
 

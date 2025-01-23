@@ -8,7 +8,7 @@ import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
 import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:bluebreeze_flutter_example/offline.dart';
 import 'package:bluebreeze_flutter_example/permissions.dart';
-import 'package:bluebreeze_flutter_example/scanning.dart';
+import 'package:bluebreeze_flutter_example/scan.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -40,7 +40,7 @@ class MyAppState extends State<MyApp> {
                 if (widget.manager.state != BBState.poweredOn) {
                   return const OfflineWidget();
                 } else {
-                  return ScanningWidget(manager: widget.manager);
+                  return ScanWidget(manager: widget.manager);
                 }
               },
             );
