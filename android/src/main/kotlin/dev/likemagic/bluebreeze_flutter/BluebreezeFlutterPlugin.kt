@@ -231,7 +231,15 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     return
                 }
 
-                manager.scanStart(context)
+                val arguments = call.arguments as? Map<*, *>
+                val services = arguments?.get("services") as? List<*>
+                val serviceUUIDs = services?.filterIsInstance<String>()?.map { BBUUID.fromString(it) }
+
+                manager.scanStart(
+                    context = context,
+                    serviceUUIDs = serviceUUIDs ?: emptyList()
+                )
+
                 result.success(null)
                 return
             }
@@ -534,7 +542,7 @@ val BBScanResult.toFlutter
         "id" to address,
         "rssi" to rssi,
         "connectable" to connectable,
-        "advertisedServices" to advertisedServices,
+        "advertisedServices" to advertisedServices.map { it.toString() },
         "manufacturerId" to manufacturerId,
         "manufacturerString" to manufacturerName,
         "manufacturerData" to manufacturerData

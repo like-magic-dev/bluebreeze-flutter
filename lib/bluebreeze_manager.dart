@@ -35,7 +35,7 @@ class BBManager {
 
   Stream<BBScanResult> get scanResultsStream => BlueBreezePlatform.instance.scanResultsStream;
 
-  Future scanStart() => BlueBreezePlatform.instance.scanStart();
+  Future scanStart({List<String>? services}) => BlueBreezePlatform.instance.scanStart(services: services);
 
   Future scanStop() => BlueBreezePlatform.instance.scanStop();
 
