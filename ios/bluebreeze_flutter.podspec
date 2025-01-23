@@ -30,5 +30,5 @@ A modern Bluetooth LE library.
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
   # s.resource_bundles = {'bluebreeze_flutter_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
-  s.dependency 'BlueBreeze', '~> 0.0.7'
+  s.dependency 'BlueBreeze', '~> 0.0.8'
 end
