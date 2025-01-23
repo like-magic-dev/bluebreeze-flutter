@@ -52,7 +52,7 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<BBScanResult> get scanResultsStream;
 
-  Future scanStart();
+  Future scanStart({List<String>? services});
 
   Future scanStop();
 

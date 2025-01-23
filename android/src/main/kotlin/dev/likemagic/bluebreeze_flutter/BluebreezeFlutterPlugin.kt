@@ -231,7 +231,15 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     return
                 }
 
-                manager.scanStart(context)
+                val arguments = call.arguments as? Map<*, *>
+                val services = arguments?.get("services") as? List<*>
+                val serviceUUIDs = services?.filterIsInstance<String>()?.map { BBUUID.fromString(it) }
+
+                manager.scanStart(
+                    context = context,
+                    serviceUUIDs = serviceUUIDs ?: emptyList()
+                )
+
                 result.success(null)
                 return
             }

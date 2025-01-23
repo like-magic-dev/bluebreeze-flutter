@@ -240,8 +240,13 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBScanResult> get scanResultsStream => _scanResultsStreamController.stream;
 
   @override
-  Future scanStart() async {
-    methodChannel.invokeMethod('scanStart');
+  Future scanStart({List<String>? services}) async {
+    methodChannel.invokeMethod(
+      'scanStart',
+      {
+        'services': services,
+      },
+    );
   }
 
   @override

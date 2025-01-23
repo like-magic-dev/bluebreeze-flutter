@@ -142,7 +142,11 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             result([:])
 
         case "scanStart":
-            manager.scanStart()
+            let arguments = call.arguments as? [String: Any]
+            let services = arguments?["services"] as? [String]
+            manager.scanStart(serviceUuids: services?.map({
+                BBUUID(string: $0)
+            }))
             result([:])
 
         case "scanStop":
