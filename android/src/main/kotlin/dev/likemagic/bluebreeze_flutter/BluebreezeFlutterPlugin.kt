@@ -6,6 +6,8 @@
 package dev.likemagic.bluebreeze_flutter
 
 import BBUUID
+import android.app.Activity
+import android.content.Context
 import dev.likemagic.bluebreeze.BBAuthorization
 import dev.likemagic.bluebreeze.BBCharacteristic
 import dev.likemagic.bluebreeze.BBConstants
@@ -15,6 +17,8 @@ import dev.likemagic.bluebreeze.BBManager
 import dev.likemagic.bluebreeze.BBService
 import dev.likemagic.bluebreeze.BBState
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -24,9 +28,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
+class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private lateinit var manager: BBManager
+
+    private var application: Context? = null
+    private var activity: Activity? = null
 
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     private var coroutineJobs: MutableList<Job> = mutableListOf()
@@ -34,12 +41,56 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private var coroutineDeviceServiceJobs: MutableMap<String, MutableMap<BBUUID, MutableMap<BBUUID, MutableList<Job>>>> =
         mutableMapOf()
 
+    // region Engine lifecycle
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        application = flutterPluginBinding.applicationContext
+
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "bluebreeze")
         channel.setMethodCallHandler(this)
 
         manager = BBManager(flutterPluginBinding.applicationContext)
 
+        initialize()
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        application = null
+
+        coroutineDeviceJobs.forEach { list -> list.value.forEach { it.cancel() } }
+        coroutineDeviceJobs.clear()
+
+        coroutineJobs.forEach { it.cancel() }
+        coroutineJobs.clear()
+
+        channel.setMethodCallHandler(null)
+    }
+
+    // endregion
+
+    // region Activity lifecycle
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+    }
+
+    override fun onDetachedFromActivity() {
+        activity = null
+    }
+
+    // endregion
+
+    // region Initialization
+
+    private fun initialize() {
         coroutineScope.launch {
             manager.state.collect {
                 reportState(it)
@@ -60,20 +111,20 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
         coroutineScope.launch {
             manager.scanningDevices.collect {
-                initDevice(it)
+                initializeDevice(it)
                 reportScanningDevice(it)
             }
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
             manager.devices.collect {
-                it.values.forEach { device -> initDevice(device) }
+                it.values.forEach { device -> initializeDevice(device) }
                 reportDevices(it)
             }
         }.storeIn(coroutineJobs)
     }
 
-    private fun initDevice(device: BBDevice) {
+    private fun initializeDevice(device: BBDevice) {
         if (coroutineDeviceJobs[device.address] != null) {
             return
         }
@@ -89,7 +140,7 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
         coroutineScope.launch {
             device.services.collect {
-                initServices(device, it)
+                initializeServices(device, it)
                 reportDeviceServices(device, it)
             }
         }.storeIn(coroutineDeviceJobsList)
@@ -101,7 +152,7 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
         }.storeIn(coroutineDeviceJobsList)
     }
 
-    private fun initServices(device: BBDevice, services: List<BBService>) {
+    private fun initializeServices(device: BBDevice, services: List<BBService>) {
         val coroutineDeviceServicesJobsMap =
             coroutineDeviceServiceJobs[device.address] ?: mutableMapOf()
 
@@ -148,15 +199,9 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
         coroutineDeviceServiceJobs[device.address] = coroutineDeviceServicesJobsMap
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        coroutineDeviceJobs.forEach { list -> list.value.forEach { it.cancel() } }
-        coroutineDeviceJobs.clear()
+    // endregion
 
-        coroutineJobs.forEach { it.cancel() }
-        coroutineJobs.clear()
-
-        channel.setMethodCallHandler(null)
-    }
+    // region Method callback
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
@@ -170,19 +215,34 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "authorizationRequest" -> {
-                manager.authorizationRequest()
+                val context = activity ?: application ?: run {
+                    result.error("Not attached to context", null, null)
+                    return
+                }
+
+                manager.authorizationRequest(context)
                 result.success(null)
                 return
             }
 
             "scanningStart" -> {
-                manager.scanningStart()
+                val context = activity ?: application ?: run {
+                    result.error("Not attached to activity", null, null)
+                    return
+                }
+
+                manager.scanningStart(context)
                 result.success(null)
                 return
             }
 
             "scanningStop" -> {
-                manager.scanningStop()
+                val context = activity ?: application ?: run {
+                    result.error("Not attached to activity", null, null)
+                    return
+                }
+
+                manager.scanningStop(context)
                 result.success(null)
                 return
             }
@@ -347,6 +407,10 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
         result.notImplemented()
     }
 
+    // endregion
+
+    // region Report values
+
     private fun reportState(value: BBState) {
         channel.invokeMethod(
             "stateUpdate",
@@ -455,6 +519,8 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler {
             ),
         )
     }
+
+    // endregion
 }
 
 val BBDevice.toFlutter
