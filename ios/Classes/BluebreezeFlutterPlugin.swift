@@ -253,8 +253,8 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
 
             Task {
                 do {
-                    try await characteristic.read()
-                    result(Data())
+                    let value = try await characteristic.read()
+                    result(value ?? Data())
                 } catch {
                     result(FlutterError(code: "Error", message: nil, details: nil))
                 }

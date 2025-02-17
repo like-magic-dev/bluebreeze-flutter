@@ -39,7 +39,7 @@ class BBCharacteristic {
 
   // Operations
 
-  Future read() => BlueBreezePlatform.instance.deviceCharacteristicRead(deviceId, serviceId, id);
+  Future<Uint8List> read() => BlueBreezePlatform.instance.deviceCharacteristicRead(deviceId, serviceId, id);
 
   Future write({
     required Uint8List data,
