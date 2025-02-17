@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bluebreeze_flutter'
-  s.version          = '0.0.1'
+  s.version          = '0.0.3'
   s.summary          = 'BlueBreeze Flutter SDK.'
   s.description      = <<-DESC
 A modern Bluetooth LE library.
@@ -30,5 +30,5 @@ A modern Bluetooth LE library.
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
   # s.resource_bundles = {'bluebreeze_flutter_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
-  s.dependency 'BlueBreeze', '~> 0.0.8'
+  s.dependency 'BlueBreeze', '~> 0.0.9'
 end
