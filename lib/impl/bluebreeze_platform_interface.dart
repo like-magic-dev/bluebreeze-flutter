@@ -44,6 +44,8 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Future authorizationRequest();
 
+  Future authorizationOpenSettings();
+
   // Scan
 
   bool get scanEnabled;

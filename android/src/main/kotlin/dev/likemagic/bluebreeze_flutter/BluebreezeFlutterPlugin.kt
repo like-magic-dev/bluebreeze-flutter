@@ -225,6 +225,17 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 return
             }
 
+            "authorizationOpenSettings" -> {
+                val context = activity ?: application ?: run {
+                    result.error("Not attached to context", null, null)
+                    return
+                }
+
+                manager.authorizationOpenSettings(context)
+                result.success(null)
+                return
+            }
+
             "scanStart" -> {
                 val context = activity ?: application ?: run {
                     result.error("Not attached to activity", null, null)

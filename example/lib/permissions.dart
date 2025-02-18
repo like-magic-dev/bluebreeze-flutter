@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
 import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
 import 'package:flutter/material.dart';
 
@@ -29,10 +30,16 @@ class PermissionsWidgetState extends State<PermissionsWidget> {
         child: Column(
           children: [
             const Text('The app is not authorized'),
-            TextButton(
-              onPressed: () => widget.manager.authorizationRequest(),
-              child: const Text('Request Authorization'),
-            )
+            if (widget.manager.authorizationStatus == BBAuthorization.unknown)
+              TextButton(
+                onPressed: () => widget.manager.authorizationRequest(),
+                child: const Text('Request Authorization'),
+              ),
+            if (widget.manager.authorizationStatus == BBAuthorization.denied)
+              TextButton(
+                onPressed: () => widget.manager.authorizationOpenSettings(),
+                child: const Text('Open Settings'),
+              ),
           ],
         ),
       ),

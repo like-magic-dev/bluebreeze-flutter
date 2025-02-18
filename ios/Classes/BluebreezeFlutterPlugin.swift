@@ -141,6 +141,10 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             manager.authorizationRequest()
             result([:])
 
+        case "authorizationOpenSettings":
+            manager.authorizationOpenSettings()
+            result([:])
+
         case "scanStart":
             let arguments = call.arguments as? [String: Any]
             let services = arguments?["services"] as? [String]

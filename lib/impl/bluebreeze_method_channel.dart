@@ -224,6 +224,11 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     methodChannel.invokeMethod('authorizationRequest');
   }
 
+  @override
+  Future<void> authorizationOpenSettings() async {
+    methodChannel.invokeMethod('authorizationOpenSettings');
+  }
+
   // Scan
 
   final _scanEnabledStreamController = _ValueStreamController<bool>(initialValue: false);
