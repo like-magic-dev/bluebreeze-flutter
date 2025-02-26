@@ -477,7 +477,7 @@ extension BBDevice {
 extension BBScanResult {
     var toFlutter: [String: Any] {
         return [
-            "id": id.uuidString,
+            "id": device.id.uuidString,
             "name": name as Any,
             "rssi": rssi,
             "connectable": connectable,
