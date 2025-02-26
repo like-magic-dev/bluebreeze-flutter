@@ -82,7 +82,7 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<int> deviceMTUStream(String id);
 
-  // Device operation
+  // Device operations
 
   Future deviceConnect(String id);
 

@@ -68,30 +68,28 @@ class DeviceWidgetState extends State<DeviceWidget> {
               final characteristics = service.characteristics;
               characteristics.sort((a, b) => a.id.compareTo(b.id));
 
-              return Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        service.name ?? service.id,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      service.name ?? service.id,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: characteristics.length,
-                      itemBuilder: (context, index) {
-                        final characteristic = characteristics[index];
-                        return CharacteristicWidget(characteristic: characteristic);
-                      },
-                    )
-                  ],
-                ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: characteristics.length,
+                    itemBuilder: (context, index) {
+                      final characteristic = characteristics[index];
+                      return CharacteristicWidget(characteristic: characteristic);
+                    },
+                  )
+                ],
               );
             },
           );

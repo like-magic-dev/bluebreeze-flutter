@@ -1,6 +1,6 @@
 name: bluebreeze_flutter
 description: "BlueBreeze Flutter SDK. A modern Bluetooth LE library."
-version: 0.0.6
+version: 0.0.7
 homepage: https://likemagic.dev
 
 environment:
