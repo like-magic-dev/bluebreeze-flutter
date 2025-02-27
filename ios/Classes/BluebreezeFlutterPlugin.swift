@@ -365,7 +365,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod(
             "stateUpdate",
             arguments: [
-                "value": "\(value)"
+                "value": value.toFlutter,
             ]
         )
     }
@@ -374,7 +374,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod(
             "authorizationStatusUpdate",
             arguments: [
-                "value": "\(value)"
+                "value": value.toFlutter,
             ]
         )
     }
@@ -383,7 +383,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod(
             "scanEnabledUpdate",
             arguments: [
-                "value": value
+                "value": value,
             ]
         )
     }
@@ -392,7 +392,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod(
             "scanResultUpdate",
             arguments: [
-                "value": value.toFlutter
+                "value": value.toFlutter,
             ]
         )
     }
@@ -411,7 +411,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             "deviceConnectionStatusUpdate",
             arguments: [
                 "deviceId": deviceId.uuidString,
-                "value": "\(value)",
+                "value": value.toFlutter,
             ]
         )
     }
@@ -465,6 +465,40 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
     }
 }
 
+/// Converters to flutter
+
+extension BBState {
+    var toFlutter: String {
+        switch self {
+            case .unknown: return "unknown"
+            case .resetting: return "resetting"
+            case .unsupported: return "unsupported"
+            case .unauthorized: return "unauthorized"
+            case .poweredOff: return "poweredOff"
+            case .poweredOn: return "poweredOn"
+        }
+    }
+}
+
+extension BBAuthorization {
+    var toFlutter: String {
+        switch self {
+            case .unknown: return "unknown"
+            case .denied: return "denied"
+            case .authorized: return "authorized"
+        }
+    }
+}
+
+extension BBDeviceConnectionStatus {
+    var toFlutter: String {
+        switch self {
+            case .disconnected: return "disconnected"
+            case .connected: return "connected"
+        }
+    }
+}
+
 extension BBDevice {
     var toFlutter: [String: Any] {
         return [
@@ -506,8 +540,19 @@ extension BBCharacteristic {
         return [
             "id": id.uuidString,
             "name": BBConstants.knownCharacteristics[id] as Any,
-            "properties": properties.map { "\($0)" },
+            "properties": properties.map { $0.toFlutter },
         ]
+    }
+}
+
+extension BBCharacteristicProperty {
+    var toFlutter: String {
+        switch self {
+            case .read: return "read"
+            case .writeWithResponse: return "writeWithResponse"
+            case .writeWithoutResponse: return "writeWithoutResponse"
+            case .notify: return "notify"
+        }
     }
 }
 
