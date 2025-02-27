@@ -1,6 +1,6 @@
 PODS:
   - BlueBreeze (0.0.14)
-  - bluebreeze_flutter (0.0.7):
+  - bluebreeze_flutter (0.0.9):
     - BlueBreeze (~> 0.0.14)
     - Flutter
   - Flutter (1.0.0)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   BlueBreeze: 8475317ea132d40b22864eaf15eabcc382febb21
-  bluebreeze_flutter: 0eb79647bba96b80b65d3aa6fe9dc56b32a70ba5
+  bluebreeze_flutter: cd9e418f63a4428012284fe32b24a511e271d144
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
