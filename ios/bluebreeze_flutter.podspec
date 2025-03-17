@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bluebreeze_flutter'
-  s.version          = '0.0.9'
+  s.version          = '0.0.10'
   s.summary          = 'BlueBreeze Flutter SDK.'
   s.description      = <<-DESC
 A modern Bluetooth LE library.
