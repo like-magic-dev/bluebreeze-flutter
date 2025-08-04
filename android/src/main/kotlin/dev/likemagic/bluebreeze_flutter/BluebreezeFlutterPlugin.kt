@@ -365,6 +365,13 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                         coroutineScope.launch {
                             try {
                                 val value = characteristic.read()
+                                reportDeviceCharacteristicData(
+                                    device,
+                                    service,
+                                    characteristic,
+                                    value,
+                                )
+
                                 result.success(value)
                             } catch (e: Throwable) {
                                 result.error("Error", e.message, null)
