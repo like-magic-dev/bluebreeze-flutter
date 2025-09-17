@@ -265,6 +265,12 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 result.success(null)
                 return
             }
+
+            "handleHotReload" -> {
+                handleHotReload()
+                result.success(null)
+                return
+            }
         }
 
         if (call.method.startsWith("device")) {
@@ -544,6 +550,22 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 "value" to value,
             ),
         )
+    }
+
+    // endregion
+
+    // region Developer tools
+
+    private fun handleHotReload() {
+        coroutineScope.launch {
+            for (device in manager.devices.value.values) {
+                try {
+                    device.disconnect()
+                } catch (e: Throwable) {
+                    // Ignore
+                }
+            }
+        }
     }
 
     // endregion

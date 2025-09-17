@@ -46,4 +46,8 @@ class BBManager {
   Map<String, BBDevice> get devices => BlueBreezePlatform.instance.devices;
 
   Stream<Map<String, BBDevice>> get devicesStream => BlueBreezePlatform.instance.devicesStream;
+
+  // Developer tools
+
+  void handleHotReload() => BlueBreezePlatform.instance.handleHotReload();
 }
