@@ -9,6 +9,7 @@ import 'package:bluebreeze_flutter/bluebreeze_state.dart';
 import 'package:bluebreeze_flutter_example/offline.dart';
 import 'package:bluebreeze_flutter_example/permissions.dart';
 import 'package:bluebreeze_flutter_example/scan.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,6 +26,17 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // This is necessary to clean up the state of the native Bluetooth stack
+    // when doing a hot reload during development
+    if (kDebugMode) {
+      widget.manager.handleHotReload();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
