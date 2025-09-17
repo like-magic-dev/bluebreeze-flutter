@@ -356,6 +356,10 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
                 }
             }
 
+        case "handleHotReload":
+            // Nothing to do on iOS
+            result(nil)
+
         default:
             result(FlutterMethodNotImplemented)
         }

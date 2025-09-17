@@ -113,4 +113,8 @@ abstract class BlueBreezePlatform extends PlatformInterface {
   Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
 
   Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
+
+  // Developer tools
+
+  void handleHotReload();
 }

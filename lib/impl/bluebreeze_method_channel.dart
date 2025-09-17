@@ -410,4 +410,11 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           'characteristicId': characteristicId,
         },
       );
+
+  // Developer tools
+
+  @override
+  void handleHotReload() {
+    methodChannel.invokeMethod('handleHotReload');
+  }
 }
