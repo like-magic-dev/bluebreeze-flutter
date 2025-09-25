@@ -1,6 +1,6 @@
 PODS:
   - BlueBreeze (0.0.14)
-  - bluebreeze_flutter (0.0.14):
+  - bluebreeze_flutter (0.0.15):
     - BlueBreeze (~> 0.0.14)
     - Flutter
   - Flutter (1.0.0)
