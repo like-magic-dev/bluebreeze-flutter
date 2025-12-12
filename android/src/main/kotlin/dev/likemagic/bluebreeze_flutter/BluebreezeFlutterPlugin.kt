@@ -584,7 +584,7 @@ val BBScanResult.toFlutter
         "connectable" to connectable,
         "advertisedServices" to advertisedServices.map { it.toString() },
         "manufacturerId" to manufacturerId,
-        "manufacturerString" to manufacturerName,
+        "manufacturerName" to manufacturerName,
         "manufacturerData" to manufacturerData
     )
 

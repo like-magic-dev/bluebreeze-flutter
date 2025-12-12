@@ -521,7 +521,7 @@ extension BBScanResult {
             "connectable": connectable,
             "advertisedServices": advertisedServices.map(\.uuidString),
             "manufacturerId": manufacturerId as Any,
-            "manufacturerString": manufacturerName as Any,
+            "manufacturerName": manufacturerName as Any,
             "manufacturerData": manufacturerData?.toFlutter as Any,
         ]
     }
