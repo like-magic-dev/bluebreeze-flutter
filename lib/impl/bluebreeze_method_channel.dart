@@ -96,12 +96,22 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         return;
 
       case 'devicesUpdate':
-        final devices = _devicesStreamController.value;
+        final devices =
+        Map<String, BBDevice>.from(_devicesStreamController.value);
         methodCall.arguments['value'].forEach(
-          (data) {
-            devices[data['id']] ??= BBDevice(
-              id: data['id'],
-              name: data['name'],
+              (data) {
+            final String id = data['id'];
+            final String? name = data['name'];
+            devices.update(
+              id,
+                  (device) {
+                // Check if the existing device has no name and if we could
+                // assign one
+                final bool needToUpdate = (device.name ?? '').isEmpty == true &&
+                    name?.isNotEmpty == true;
+                return needToUpdate ? BBDevice(id: id, name: name) : device;
+              },
+              ifAbsent: () => BBDevice(id: id, name: name),
             );
           },
         );
