@@ -30,7 +30,7 @@ class _ValueStreamController<T> {
   Stream<T> get stream => _controller.stream;
 
   void add(T value) {
-    this._value = value;
+    _value = value;
     _controller.sink.add(value);
   }
 
@@ -85,6 +85,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
         final scanResult = BBScanResult(
           device: device,
+          name: data['name'],
           rssi: data['rssi'],
           connectable: data['connectable'],
           advertisedServices: List<String>.from(data['advertisedServices']),
@@ -99,7 +100,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         final devices = _devicesStreamController.value;
         methodCall.arguments['value'].forEach(
           (data) {
-            devices[data['id']] ??= BBDevice(
+            devices[data['id']] = BBDevice(
               id: data['id'],
               name: data['name'],
             );

@@ -60,7 +60,7 @@ class ScanWidgetState extends State<ScanWidget> {
             itemCount: scanResults.length,
             itemBuilder: (context, index) => ListTile(
               title: Text(
-                scanResults[index].device.name ?? scanResults[index].device.id,
+                scanResults[index].name ?? '-',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

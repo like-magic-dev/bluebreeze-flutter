@@ -580,6 +580,7 @@ val BBDevice.toFlutter
 val BBScanResult.toFlutter
     get() = mapOf(
         "id" to address,
+        "name" to name,
         "rssi" to rssi,
         "connectable" to connectable,
         "advertisedServices" to advertisedServices.map { it.toString() },

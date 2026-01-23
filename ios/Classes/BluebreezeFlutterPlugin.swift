@@ -532,7 +532,7 @@ extension [BBUUID: [BBCharacteristic]] {
         return map {
             [
                 "id": $0.key.uuidString,
-                "name": BBConstants.knownServices[$0.key] as Any,
+                "name": BBAssignedNumbers.serviceUUIDs[$0.key] as Any,
                 "characteristics": $0.value.map { $0.toFlutter },
             ]
         }
@@ -543,7 +543,7 @@ extension BBCharacteristic {
     var toFlutter: [String: Any] {
         return [
             "id": id.uuidString,
-            "name": BBConstants.knownCharacteristics[id] as Any,
+            "name": BBAssignedNumbers.characteristicUUIDs[id] as Any,
             "properties": properties.map { $0.toFlutter },
         ]
     }

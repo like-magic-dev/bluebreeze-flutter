@@ -7,5 +7,6 @@
     "source.fixAll": "explicit",
     "source.sortImports": "explicit",
     "source.organizeImports": "explicit"
-  }
+  },
+  "dart.flutterSdkPath": ".fvm/versions/3.35.4"
 }
