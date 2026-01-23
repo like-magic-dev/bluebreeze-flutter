@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 class BBScanResult {
   BBScanResult({
     required this.device,
+    required this.name,
     required this.rssi,
     required this.connectable,
     required this.advertisedServices,
@@ -18,6 +19,7 @@ class BBScanResult {
   });
 
   final BBDevice device;
+  final String? name;
   final int rssi;
   final bool connectable;
   final List<String> advertisedServices;
