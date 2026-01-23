@@ -30,7 +30,7 @@ class _ValueStreamController<T> {
   Stream<T> get stream => _controller.stream;
 
   void add(T value) {
-    this._value = value;
+    _value = value;
     _controller.sink.add(value);
   }
 
