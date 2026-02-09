@@ -1,7 +1,7 @@
 PODS:
-  - BlueBreeze (0.0.19)
-  - bluebreeze_flutter (0.0.18):
-    - BlueBreeze (~> 0.0.19)
+  - BlueBreeze (0.0.20)
+  - bluebreeze_flutter (0.0.19):
+    - BlueBreeze (~> 0.0.20)
     - Flutter
   - Flutter (1.0.0)
   - integration_test (0.0.1):
@@ -25,8 +25,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  BlueBreeze: e1875ed6bdb26a23b45a01ef6789c5d4db3107e5
-  bluebreeze_flutter: c1bfcad911145f928d7e0e1ef1720f0c689d87b7
+  BlueBreeze: 29c80b5dab5b62e58974fbebcc41350361415e54
+  bluebreeze_flutter: db680a37c05d0cfc10466b26599b13450fff276b
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
