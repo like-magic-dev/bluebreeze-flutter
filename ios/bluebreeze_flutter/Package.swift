@@ -4,41 +4,28 @@
 import PackageDescription
 
 let package = Package(
-    // TODO: Update your plugin name.
     name: "bluebreeze_flutter",
     platforms: [
-        // TODO: Update the platforms your plugin supports.
-        // If your plugin only supports iOS, remove `.macOS(...)`.
-        // If your plugin only supports macOS, remove `.iOS(...)`.
         .iOS("13.0"),
-        .macOS("10.15")
+        .macOS("11.5")
     ],
     products: [
-        // TODO: Update your library and target names.
         // If the plugin name contains "_", replace with "-" for the library name.
-        .library(name: "bluebreeze_flutter", targets: ["bluebreeze_flutter"])
+        .library(name: "bluebreeze-flutter", targets: ["bluebreeze_flutter"])
     ],
     dependencies: [
-        .package(name: "FlutterFramework", path: "../FlutterFramework")
+        .package(name: "FlutterFramework", path: "../FlutterFramework"),
+        .package(url: "https://github.com/like-magic-dev/bluebreeze-ios", from: "0.0.20"),
     ],
     targets: [
         .target(
-            // TODO: Update your target name.
             name: "bluebreeze_flutter",
             dependencies: [
-                .product(name: "FlutterFramework", package: "FlutterFramework")
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
+                .product(name: "BlueBreeze", package: "bluebreeze-ios"),
             ],
             resources: [
-                // TODO: If your plugin requires a privacy manifest
-                // (e.g. if it uses any required reason APIs), update the PrivacyInfo.xcprivacy file
-                // to describe your plugin's privacy impact, and then uncomment this line.
-                // For more information, see:
-                // https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
                 .process("PrivacyInfo.xcprivacy"),
-
-                // TODO: If you have other resources that need to be bundled with your plugin, refer to
-                // the following instructions to add them:
-                // https://developer.apple.com/documentation/xcode/bundling-resources-with-a-swift-package
             ]
         )
     ]
