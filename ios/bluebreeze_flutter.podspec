@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bluebreeze_flutter'
-  s.version          = '0.0.19'
+  s.version          = '0.0.20'
   s.summary          = 'BlueBreeze Flutter SDK.'
   s.description      = <<-DESC
 A modern Bluetooth LE library.
@@ -13,7 +13,7 @@ A modern Bluetooth LE library.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Alessandro Mulloni' => 'ale@likemagic.dev' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'bluebreeze_flutter/Sources/bluebreeze_flutter/**/*'
   s.dependency         'Flutter'
   s.platform         = :ios, '13.0'
 

@@ -8,5 +8,5 @@
     "source.sortImports": "explicit",
     "source.organizeImports": "explicit"
   },
-  "dart.flutterSdkPath": ".fvm/versions/3.35.4"
+  "dart.flutterSdkPath": ".fvm/versions/3.44.0"
 }
