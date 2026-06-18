@@ -135,7 +135,9 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             reportAuthorizationStatus(manager.authorizationStatus.value)
             reportScanEnabled(manager.scanEnabled.value)
             reportDevices(manager.devices.value)
-            result([:])
+            result([
+                "supportsExtended": manager.supportsExtended
+            ])
 
         case "authorizationRequest":
             manager.authorizationRequest()

@@ -45,7 +45,9 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   MethodChannelBlueBreeze() {
     methodChannel.setMethodCallHandler(methodCallHandler);
-    methodChannel.invokeMethod('initialize');
+    methodChannel.invokeMethod('initialize').then((value) {
+      _supportsExtended = value['supportsExtended'] ?? false;
+    });
   }
 
   Future<dynamic> methodCallHandler(MethodCall methodCall) async {

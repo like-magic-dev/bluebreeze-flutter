@@ -29,6 +29,10 @@ class BBManager {
 
   Future authorizationOpenSettings() => BlueBreezePlatform.instance.authorizationOpenSettings();
 
+  // Capabilities
+
+  bool get supportsExtended => BlueBreezePlatform.instance.supportsExtended;
+
   // Scan
 
   bool get scanEnabled => BlueBreezePlatform.instance.scanEnabled;

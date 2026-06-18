@@ -27,7 +27,20 @@ class ScanWidgetState extends State<ScanWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BLE Scan'),
+        title: Column(
+          children: [
+            const Text('BLE Scan'),
+            widget.manager.supportsExtended
+                ? const Text(
+                    'Extended scan',
+                    style: TextStyle(fontSize: 12),
+                  )
+                : const Text(
+                    'Legacy scan',
+                    style: TextStyle(fontSize: 12),
+                  ),
+          ],
+        ),
         actions: [
           StreamBuilder(
             stream: widget.manager.scanEnabledStream,

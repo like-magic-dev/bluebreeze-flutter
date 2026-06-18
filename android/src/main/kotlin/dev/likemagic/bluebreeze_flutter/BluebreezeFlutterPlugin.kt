@@ -210,7 +210,11 @@ class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 reportAuthorizationStatus(manager.authorizationStatus.value)
                 reportScanEnabled(manager.scanEnabled.value)
                 reportDevices(manager.devices.value)
-                result.success(null)
+                result.success(
+                    mapOf(
+                        "supportsExtended" to manager.supportsExtended
+                    )
+                )
                 return
             }
 
