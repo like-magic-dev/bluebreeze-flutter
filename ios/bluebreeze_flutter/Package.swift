@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
-        .package(url: "https://github.com/like-magic-dev/bluebreeze-ios", from: "0.0.20"),
+        .package(url: "https://github.com/like-magic-dev/bluebreeze-ios", from: "0.0.24"),
     ],
     targets: [
         .target(

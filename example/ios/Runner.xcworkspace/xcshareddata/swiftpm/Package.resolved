@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/like-magic-dev/bluebreeze-ios",
       "state" : {
-        "revision" : "2d36c8a5717b286d684cfd3074dd16d08cf24ab7",
-        "version" : "0.0.20"
+        "revision" : "fe033d0a8401591dbf8d2c67d290317308db48dc",
+        "version" : "0.0.24"
       }
     },
     {
