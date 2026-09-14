@@ -86,10 +86,12 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 serviceUUIDs.contains(key)
             }) ?? [:]
 
-        // Init all existing services
-        services.forEach { service in
-            let serviceId = service.uuid
-            let characteristicUUIDs = Set(service.characteristics.map { $0.uuid })
+        // Group all services by UUID first
+        let servicesByUUID = Dictionary(grouping: services, by: { $0.uuid })
+
+        for (serviceId, serviceInstances) in servicesByUUID {
+            let characteristics = serviceInstances.flatMap { $0.characteristics }
+            let characteristicUUIDs = Set(characteristics.map { $0.uuid })
 
             // Clean up service data by removing missing characteristics
             dispatchBagServices[device.id]![serviceId] =
@@ -98,7 +100,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 }) ?? [:]
 
             // Init all existing characteristics
-            service.characteristics.forEach { characteristic in
+            characteristics.forEach { characteristic in
                 guard dispatchBagServices[device.id]![serviceId]![characteristic.uuid] == nil else {
                     return
                 }
