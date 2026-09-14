@@ -178,14 +178,10 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBAuthorization> get authorizationStatusStream => _authorizationStatusStreamController.stream;
 
   @override
-  Future<void> authorizationRequest() async {
-    methodChannel.invokeMethod('authorizationRequest');
-  }
+  Future<void> authorizationRequest() => methodChannel.invokeMethod('authorizationRequest');
 
   @override
-  Future<void> authorizationOpenSettings() async {
-    methodChannel.invokeMethod('authorizationOpenSettings');
-  }
+  Future<void> authorizationOpenSettings() => methodChannel.invokeMethod('authorizationOpenSettings');
 
   // Capabilities
 
@@ -210,14 +206,10 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBScanResult> get scanResultsStream => _scanResultsStreamController.stream;
 
   @override
-  Future scanStart({List<String>? services}) async {
-    methodChannel.invokeMethod('scanStart', {'services': services});
-  }
+  Future scanStart({List<String>? services}) => methodChannel.invokeMethod('scanStart', {'services': services});
 
   @override
-  Future scanStop() async {
-    methodChannel.invokeMethod('scanStop');
-  }
+  Future scanStop() => methodChannel.invokeMethod('scanStop');
 
   // Devices
 
