@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
-import 'package:bluebreeze_flutter/bluebreeze_state.dart';
-import 'package:bluebreeze_flutter_example/offline.dart';
-import 'package:bluebreeze_flutter_example/permissions.dart';
-import 'package:bluebreeze_flutter_example/scan.dart';
+import 'package:bluebreeze/bluebreeze_authorization.dart';
+import 'package:bluebreeze/bluebreeze_manager.dart';
+import 'package:bluebreeze/bluebreeze_state.dart';
+import 'package:bluebreeze_example/offline.dart';
+import 'package:bluebreeze_example/permissions.dart';
+import 'package:bluebreeze_example/scan.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

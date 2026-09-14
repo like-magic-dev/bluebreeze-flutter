@@ -1,6 +1,6 @@
-# bluebreeze_flutter_example
+# bluebreeze_example
 
-Demonstrates how to use the bluebreeze_flutter plugin.
+Demonstrates how to use the bluebreeze plugin.
 
 ## Getting Started
 

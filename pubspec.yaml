@@ -1,4 +1,4 @@
-name: bluebreeze_flutter
+name: bluebreeze
 description: 'BlueBreeze Flutter SDK. A modern Bluetooth LE library.'
 version: 0.0.21
 homepage: https://likemagic.dev
@@ -21,7 +21,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: dev.likemagic.bluebreeze_flutter
-        pluginClass: BluebreezeFlutterPlugin
+        package: dev.likemagic.bluebreeze
+        pluginClass: BluebreezePlugin
       ios:
-        pluginClass: BluebreezeFlutterPlugin
+        pluginClass: BluebreezePlugin

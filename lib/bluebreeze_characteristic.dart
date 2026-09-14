@@ -5,8 +5,8 @@
 
 import 'dart:typed_data';
 
-import 'package:bluebreeze_flutter/bluebreeze_characteristic_property.dart';
-import 'package:bluebreeze_flutter/impl/bluebreeze_platform_interface.dart';
+import 'package:bluebreeze/bluebreeze_characteristic_property.dart';
+import 'package:bluebreeze/impl/bluebreeze_platform_interface.dart';
 
 class BBCharacteristic {
   BBCharacteristic({

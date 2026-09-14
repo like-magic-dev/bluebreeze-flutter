@@ -5,10 +5,10 @@
 
 import 'dart:async';
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_device.dart';
-import 'package:bluebreeze_flutter/bluebreeze_scan_result.dart';
-import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+import 'package:bluebreeze/bluebreeze_authorization.dart';
+import 'package:bluebreeze/bluebreeze_device.dart';
+import 'package:bluebreeze/bluebreeze_scan_result.dart';
+import 'package:bluebreeze/bluebreeze_state.dart';
 
 import 'impl/bluebreeze_platform_interface.dart';
 

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_device.dart';
+import 'package:bluebreeze/bluebreeze_device.dart';
 import 'package:flutter/foundation.dart';
 
 class BBScanResult {

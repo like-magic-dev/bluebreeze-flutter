@@ -1,4 +1,4 @@
-# bluebreeze_flutter
+# bluebreeze
 
 A new Flutter plugin project.
 

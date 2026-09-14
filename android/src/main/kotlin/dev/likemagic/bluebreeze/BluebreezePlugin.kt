@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-package dev.likemagic.bluebreeze_flutter
+package dev.likemagic.bluebreeze
 
 import android.app.Activity
 import android.content.Context
@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class BluebreezeFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private lateinit var manager: BBManager
 

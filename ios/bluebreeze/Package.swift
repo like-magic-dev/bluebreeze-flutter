@@ -4,14 +4,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "bluebreeze_flutter",
+    name: "bluebreeze",
     platforms: [
         .iOS("13.0"),
         .macOS("11.5")
     ],
     products: [
-        // If the plugin name contains "_", replace with "-" for the library name.
-        .library(name: "bluebreeze-flutter", targets: ["bluebreeze_flutter"])
+        .library(name: "bluebreeze", targets: ["bluebreeze"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
@@ -19,7 +18,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "bluebreeze_flutter",
+            name: "bluebreeze",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "BlueBreeze", package: "bluebreeze-ios"),

@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "bluebreeze-flutter",
+            "name": "bluebreeze",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "bluebreeze-flutter (profile mode)",
+            "name": "bluebreeze (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "bluebreeze-flutter (release mode)",
+            "name": "bluebreeze (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

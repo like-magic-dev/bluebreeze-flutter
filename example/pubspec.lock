@@ -9,7 +9,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
-  bluebreeze_flutter:
+  bluebreeze:
     dependency: "direct main"
     description:
       path: ".."

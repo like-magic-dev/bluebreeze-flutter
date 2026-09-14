@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_characteristic.dart';
+import 'package:bluebreeze/bluebreeze_characteristic.dart';
 
 class BBService {
   BBService({

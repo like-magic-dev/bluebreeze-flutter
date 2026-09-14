@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_manager.dart';
+import 'package:bluebreeze/bluebreeze_authorization.dart';
+import 'package:bluebreeze/bluebreeze_manager.dart';
 import 'package:flutter/material.dart';
 
 class PermissionsWidget extends StatefulWidget {

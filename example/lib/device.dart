@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_device.dart';
-import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze_flutter_example/characteristic.dart';
+import 'package:bluebreeze/bluebreeze_device.dart';
+import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze_example/characteristic.dart';
 import 'package:flutter/material.dart';
 
 class DeviceWidget extends StatefulWidget {

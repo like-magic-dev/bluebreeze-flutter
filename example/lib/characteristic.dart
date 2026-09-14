@@ -5,8 +5,8 @@
 
 import 'dart:typed_data';
 
-import 'package:bluebreeze_flutter/bluebreeze_characteristic.dart';
-import 'package:bluebreeze_flutter/bluebreeze_characteristic_property.dart';
+import 'package:bluebreeze/bluebreeze_characteristic.dart';
+import 'package:bluebreeze/bluebreeze_characteristic_property.dart';
 import 'package:flutter/material.dart';
 
 class CharacteristicWidget extends StatefulWidget {

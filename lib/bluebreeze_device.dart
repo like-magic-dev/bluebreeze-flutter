@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze_flutter/bluebreeze_service.dart';
-import 'package:bluebreeze_flutter/impl/bluebreeze_platform_interface.dart';
+import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze/bluebreeze_service.dart';
+import 'package:bluebreeze/impl/bluebreeze_platform_interface.dart';
 
 class BBDevice {
   BBDevice({

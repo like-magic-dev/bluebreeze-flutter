@@ -5,12 +5,12 @@
 
 import 'dart:typed_data';
 
-import 'package:bluebreeze_flutter/bluebreeze_authorization.dart';
-import 'package:bluebreeze_flutter/bluebreeze_device.dart';
-import 'package:bluebreeze_flutter/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze_flutter/bluebreeze_scan_result.dart';
-import 'package:bluebreeze_flutter/bluebreeze_service.dart';
-import 'package:bluebreeze_flutter/bluebreeze_state.dart';
+import 'package:bluebreeze/bluebreeze_authorization.dart';
+import 'package:bluebreeze/bluebreeze_device.dart';
+import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze/bluebreeze_scan_result.dart';
+import 'package:bluebreeze/bluebreeze_service.dart';
+import 'package:bluebreeze/bluebreeze_state.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluebreeze_method_channel.dart';

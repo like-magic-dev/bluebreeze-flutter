@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint bluebreeze_flutter.podspec` to validate before publishing.
+# Run `pod lib lint bluebreeze.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'bluebreeze_flutter'
+  s.name             = 'bluebreeze'
   s.version          = '0.0.21'
   s.summary          = 'BlueBreeze Flutter SDK.'
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ A modern Bluetooth LE library.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Alessandro Mulloni' => 'ale@likemagic.dev' }
   s.source           = { :path => '.' }
-  s.source_files     = 'bluebreeze_flutter/Sources/bluebreeze_flutter/**/*'
+  s.source_files     = 'bluebreeze/Sources/bluebreeze/**/*'
   s.dependency         'Flutter'
   s.platform         = :ios, '13.0'
 
@@ -28,7 +28,7 @@ A modern Bluetooth LE library.
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'bluebreeze_flutter_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  # s.resource_bundles = {'bluebreeze_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
   s.dependency 'BlueBreeze', '~> 0.0.24'
 end

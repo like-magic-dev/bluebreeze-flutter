@@ -8,7 +8,7 @@ import Combine
 import Flutter
 import UIKit
 
-public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
+public class BluebreezePlugin: NSObject, FlutterPlugin {
     let channel: FlutterMethodChannel
     let manager = BBManager()
 
@@ -124,7 +124,7 @@ public class BluebreezeFlutterPlugin: NSObject, FlutterPlugin {
             name: "bluebreeze",
             binaryMessenger: registrar.messenger()
         )
-        let instance = BluebreezeFlutterPlugin(channel: channel)
+        let instance = BluebreezePlugin(channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 

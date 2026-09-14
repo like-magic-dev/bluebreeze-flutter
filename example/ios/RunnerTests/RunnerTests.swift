@@ -8,7 +8,7 @@ import UIKit
 import XCTest
 
 
-@testable import bluebreeze_flutter
+@testable import bluebreeze
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //
@@ -17,7 +17,7 @@ import XCTest
 class RunnerTests: XCTestCase {
 
   func testGetPlatformVersion() {
-    let plugin = BluebreezeFlutterPlugin()
+    let plugin = BluebreezePlugin()
 
     let call = FlutterMethodCall(methodName: "getPlatformVersion", arguments: [])
 
