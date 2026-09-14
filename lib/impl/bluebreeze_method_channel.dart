@@ -44,7 +44,11 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   MethodChannelBlueBreeze() {
     methodChannel.setMethodCallHandler(methodCallHandler);
     methodChannel.invokeMethod('initialize').then((value) {
-      _supportsExtended = value['supportsExtended'] ?? false;
+      _supportsExtended = (value as Map?)?['supportsExtended'] ?? false;
+    }).catchError((Object error) {
+      if (kDebugMode) {
+        print('Failed to initialize BlueBreeze: $error');
+      }
     });
   }
 
