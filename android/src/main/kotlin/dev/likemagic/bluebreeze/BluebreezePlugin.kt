@@ -356,19 +356,22 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     return
                 }
 
-                val service =
-                    device.services.value.firstOrNull { it.uuid == BBUUID.fromString(serviceId) }
-                        ?: run {
-                            result.error("Service not found", null, null)
-                            return
-                        }
+                val matchingServices = device.services.value.filter { it.uuid == BBUUID.fromString(serviceId) }
+                if (matchingServices.isEmpty()) {
+                    result.error("Service not found", null, null)
+                    return
+                }
 
-                val characteristic = service.characteristics.firstOrNull {
-                    it.uuid == BBUUID.fromString(characteristicId)
+                val characteristicUUID = BBUUID.fromString(characteristicId)
+                val match = matchingServices.firstNotNullOfOrNull { candidateService ->
+                    candidateService.characteristics.firstOrNull { it.uuid == characteristicUUID }?.let { candidateService to it }
                 } ?: run {
                     result.error("Characteristic not found", null, null)
                     return
                 }
+
+                val service = match.first
+                val characteristic = match.second
 
                 when (call.method) {
                     "deviceCharacteristicRead" -> {
