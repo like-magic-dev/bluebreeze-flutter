@@ -30,5 +30,7 @@ A modern Bluetooth LE library.
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
   # s.resource_bundles = {'bluebreeze_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
-  s.dependency 'BlueBreeze', '~> 1.0.1'
+  # Matches Package.swift's `from: "1.0.1"` (>= 1.0.1, < 2.0.0) -- `~>` would cap patch/minor
+  # updates at < 1.1.0 and let CocoaPods/SPM consumers drift onto different native versions.
+  s.dependency 'BlueBreeze', '>= 1.0.1', '< 2.0.0'
 end
