@@ -7,9 +7,9 @@ package dev.likemagic.bluebreeze
 
 import android.app.Activity
 import android.content.Context
+import dev.likemagic.bluebreeze.BBAssignedNumbers
 import dev.likemagic.bluebreeze.BBAuthorization
 import dev.likemagic.bluebreeze.BBCharacteristic
-import dev.likemagic.bluebreeze.BBConstants
 import dev.likemagic.bluebreeze.BBDevice
 import dev.likemagic.bluebreeze.BBDeviceConnectionStatus
 import dev.likemagic.bluebreeze.BBManager
@@ -335,7 +335,7 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                     coroutineScope.launch {
                         try {
-                            val newMtu = device.requestMTU(value)
+                            val newMtu = device.requestMtu(value)
                             result.success(newMtu)
                         } catch (e: Throwable) {
                             result.error("Error", e.message, null)
@@ -599,14 +599,14 @@ val List<BBService>.toFlutter
 val BBService.toFlutter
     get() = mapOf(
         "id" to uuid.toString(),
-        "name" to BBConstants.Service.knownUUIDs.get(uuid),
+        "name" to BBAssignedNumbers.Service.knownUUIDs.get(uuid),
         "characteristics" to characteristics.map { it.toFlutter }
     )
 
 val BBCharacteristic.toFlutter
     get() = mapOf(
         "id" to uuid.toString(),
-        "name" to BBConstants.Characteristic.knownUUIDs[uuid],
+        "name" to BBAssignedNumbers.Characteristic.knownUUIDs[uuid],
         "properties" to properties.map { it.name }
     )
 

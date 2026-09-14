@@ -77,44 +77,50 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
             .store(in: &dispatchBagDevices[device.id]!)
     }
 
-    private func initServices(_ device: BBDevice, _ services: [BBUUID: [BBCharacteristic]]) {
+    private func initServices(_ device: BBDevice, _ services: [BBService]) {
+        let serviceUUIDs = Set(services.map { $0.uuid })
+
         // Clean up device data by removing missing services
         dispatchBagServices[device.id] =
-            dispatchBagServices[device.id]?.filter({ key, value in
-                services[key] != nil
+            dispatchBagServices[device.id]?.filter({ key, _ in
+                serviceUUIDs.contains(key)
             }) ?? [:]
 
         // Init all existing services
-        services.forEach { serviceId, value in
+        services.forEach { service in
+            let serviceId = service.uuid
+            let characteristicUUIDs = Set(service.characteristics.map { $0.uuid })
+
             // Clean up service data by removing missing characteristics
             dispatchBagServices[device.id]![serviceId] =
                 dispatchBagServices[device.id]![serviceId]?.filter({ key, _ in
-                    value.first(where: { $0.id == key }) != nil
+                    characteristicUUIDs.contains(key)
                 }) ?? [:]
 
             // Init all existing characteristics
-            value.forEach { characteristic in
-                guard dispatchBagServices[device.id]![serviceId]![characteristic.id] == nil else {
+            service.characteristics.forEach { characteristic in
+                guard dispatchBagServices[device.id]![serviceId]![characteristic.uuid] == nil else {
                     return
                 }
 
-                dispatchBagServices[device.id]![serviceId]![characteristic.id] = []
+                dispatchBagServices[device.id]![serviceId]![characteristic.uuid] = []
 
                 characteristic.isNotifying
                     .receive(on: DispatchQueue.main)
                     .sink {
                         self.reportDeviceCharacteristicIsNotifying(
-                            device.id, serviceId, characteristic.id, $0)
+                            device.id, serviceId, characteristic.uuid, $0)
                     }
-                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.id]!)
+                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.uuid]!)
 
                 characteristic.data
                     .receive(on: DispatchQueue.main)
+                    .compactMap { $0 }
                     .sink {
                         self.reportDeviceCharacteristicData(
-                            device.id, serviceId, characteristic.id, $0)
+                            device.id, serviceId, characteristic.uuid, $0)
                     }
-                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.id]!)
+                    .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.uuid]!)
             }
         }
     }
@@ -220,8 +226,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
             guard let arguments = call.arguments as? [String: Any],
                 let uuidString = arguments["deviceId"] as? String,
                 let uuid = UUID(uuidString: uuidString),
-                let device = manager.devices.value[uuid],
-                let mtu = arguments["value"] as? Int
+                let device = manager.devices.value[uuid]
             else {
                 result(FlutterError(code: "Bad arguments", message: nil, details: nil))
                 return
@@ -229,8 +234,10 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
             Task {
                 do {
-                    try await device.requestMTU(mtu)
-                    result(mtu)
+                    // iOS negotiates the MTU automatically as part of connecting; there is no
+                    // API to request a specific value, so this only reads back the result.
+                    try await device.negotiateMTU()
+                    result(device.mtu.value)
                 } catch {
                     result(FlutterError(code: "Error", message: nil, details: nil))
                 }
@@ -248,9 +255,11 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
-                let characteristic = service.first(where: {
-                    $0.id == BBUUID(string: characteristicUuidString)
+            guard let service = device.services.value.first(where: {
+                    $0.uuid == BBUUID(string: serviceUuidString)
+                }),
+                let characteristic = service.characteristics.first(where: {
+                    $0.uuid == BBUUID(string: characteristicUuidString)
                 })
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
@@ -280,9 +289,11 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
-                let characteristic = service.first(where: {
-                    $0.id == BBUUID(string: characteristicUuidString)
+            guard let service = device.services.value.first(where: {
+                    $0.uuid == BBUUID(string: serviceUuidString)
+                }),
+                let characteristic = service.characteristics.first(where: {
+                    $0.uuid == BBUUID(string: characteristicUuidString)
                 })
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
@@ -310,9 +321,11 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
-                let characteristic = service.first(where: {
-                    $0.id == BBUUID(string: characteristicUuidString)
+            guard let service = device.services.value.first(where: {
+                    $0.uuid == BBUUID(string: serviceUuidString)
+                }),
+                let characteristic = service.characteristics.first(where: {
+                    $0.uuid == BBUUID(string: characteristicUuidString)
                 })
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
@@ -340,9 +353,11 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value[BBUUID(string: serviceUuidString)],
-                let characteristic = service.first(where: {
-                    $0.id == BBUUID(string: characteristicUuidString)
+            guard let service = device.services.value.first(where: {
+                    $0.uuid == BBUUID(string: serviceUuidString)
+                }),
+                let characteristic = service.characteristics.first(where: {
+                    $0.uuid == BBUUID(string: characteristicUuidString)
                 })
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
@@ -422,7 +437,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
         )
     }
 
-    private func reportDeviceServices(_ deviceId: UUID, _ value: [BBUUID: [BBCharacteristic]]) {
+    private func reportDeviceServices(_ deviceId: UUID, _ value: [BBService]) {
         channel.invokeMethod(
             "deviceServicesUpdate",
             arguments: [
@@ -529,13 +544,13 @@ extension BBScanResult {
     }
 }
 
-extension [BBUUID: [BBCharacteristic]] {
+extension [BBService] {
     var toFlutter: [[String: Any]] {
         return map {
             [
-                "id": $0.key.uuidString,
-                "name": BBAssignedNumbers.serviceUUIDs[$0.key] as Any,
-                "characteristics": $0.value.map { $0.toFlutter },
+                "id": $0.uuid.uuidString,
+                "name": BBAssignedNumbers.serviceUUIDs[$0.uuid] as Any,
+                "characteristics": $0.characteristics.map { $0.toFlutter },
             ]
         }
     }
@@ -544,8 +559,8 @@ extension [BBUUID: [BBCharacteristic]] {
 extension BBCharacteristic {
     var toFlutter: [String: Any] {
         return [
-            "id": id.uuidString,
-            "name": BBAssignedNumbers.characteristicUUIDs[id] as Any,
+            "id": uuid.uuidString,
+            "name": BBAssignedNumbers.characteristicUUIDs[uuid] as Any,
             "properties": properties.map { $0.toFlutter },
         ]
     }
