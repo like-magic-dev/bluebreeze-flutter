@@ -255,12 +255,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value.first(where: {
-                    $0.uuid == BBUUID(string: serviceUuidString)
-                }),
-                let characteristic = service.characteristics.first(where: {
-                    $0.uuid == BBUUID(string: characteristicUuidString)
-                })
+            guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
                 return
@@ -289,12 +284,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value.first(where: {
-                    $0.uuid == BBUUID(string: serviceUuidString)
-                }),
-                let characteristic = service.characteristics.first(where: {
-                    $0.uuid == BBUUID(string: characteristicUuidString)
-                })
+            guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
                 return
@@ -321,12 +311,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value.first(where: {
-                    $0.uuid == BBUUID(string: serviceUuidString)
-                }),
-                let characteristic = service.characteristics.first(where: {
-                    $0.uuid == BBUUID(string: characteristicUuidString)
-                })
+            guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
                 return
@@ -353,12 +338,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            guard let service = device.services.value.first(where: {
-                    $0.uuid == BBUUID(string: serviceUuidString)
-                }),
-                let characteristic = service.characteristics.first(where: {
-                    $0.uuid == BBUUID(string: characteristicUuidString)
-                })
+            guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
                 result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
                 return
@@ -380,6 +360,17 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    // Looks up a characteristic by service/characteristic UUID string. A peripheral may
+    // expose more than one service instance with the same UUID.
+    private func findCharacteristic(
+        _ device: BBDevice, _ serviceUuidString: String, _ characteristicUuidString: String
+    ) -> BBCharacteristic? {
+        return device.services.value
+            .filter({ $0.uuid == BBUUID(string: serviceUuidString) })
+            .flatMap({ $0.characteristics })
+            .first(where: { $0.uuid == BBUUID(string: characteristicUuidString) })
     }
 
     private func reportState(_ value: BBState) {
