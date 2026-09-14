@@ -51,11 +51,13 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Future<dynamic> methodCallHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'stateUpdate':
-        _stateStreamController.add(BBState.values.firstWhere((v) => (v.name == methodCall.arguments['value'])));
+        _stateStreamController.add(BBState.values.firstWhere((v) => (v.name == methodCall.arguments['value']), orElse: () => BBState.unknown));
         return;
 
       case 'authorizationStatusUpdate':
-        _authorizationStatusStreamController.add(BBAuthorization.values.firstWhere((v) => (v.name == methodCall.arguments['value'])));
+        _authorizationStatusStreamController.add(
+          BBAuthorization.values.firstWhere((v) => (v.name == methodCall.arguments['value']), orElse: () => BBAuthorization.unknown),
+        );
         return;
 
       case 'scanEnabledUpdate':
@@ -96,7 +98,10 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
       case 'deviceConnectionStatusUpdate':
         final deviceId = methodCall.arguments['deviceId'];
-        final value = BBDeviceConnectionStatus.values.firstWhere((v) => (v.name == methodCall.arguments['value']));
+        final value = BBDeviceConnectionStatus.values.firstWhere(
+          (v) => (v.name == methodCall.arguments['value']),
+          orElse: () => BBDeviceConnectionStatus.disconnected,
+        );
         _deviceConnectionStatusStreamController(deviceId).add(value);
         return;
 
@@ -115,9 +120,9 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
                     serviceId: serviceData['id'],
                     id: characteristicData['id'],
                     name: characteristicData['name'],
-                    properties: Set<BBCharacteristicProperty>.from(
-                      characteristicData['properties'].map((property) => BBCharacteristicProperty.values.firstWhere((v) => (v.name == property))),
-                    ),
+                    properties: {
+                      for (final property in characteristicData['properties']) ...BBCharacteristicProperty.values.where((v) => (v.name == property)),
+                    },
                   ),
                 ),
               ),
