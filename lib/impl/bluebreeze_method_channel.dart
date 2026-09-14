@@ -284,8 +284,8 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   @override
   Future<int> deviceRequestMTU(String id, int value) async {
-    final result = await methodChannel.invokeMethod('deviceRequestMTU', {'deviceId': id, 'value': value});
-    return result;
+    final result = await methodChannel.invokeMethod<int>('deviceRequestMTU', {'deviceId': id, 'value': value});
+    return result ?? 0;
   }
 
   // Device characteristic notify enabled
@@ -332,12 +332,12 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   @override
   Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId) async {
-    final result = await methodChannel.invokeMethod('deviceCharacteristicRead', {
+    final result = await methodChannel.invokeMethod<Uint8List>('deviceCharacteristicRead', {
       'deviceId': id,
       'serviceId': serviceId,
       'characteristicId': characteristicId,
     });
-    return result;
+    return result ?? Uint8List(0);
   }
 
   @override
