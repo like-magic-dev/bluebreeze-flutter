@@ -358,6 +358,33 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) =>
       methodChannel.invokeMethod('deviceCharacteristicUnsubscribe', {'deviceId': id, 'serviceId': serviceId, 'characteristicId': characteristicId});
 
+  // Resource cleanup
+
+  @override
+  void releaseDevice(String id) {
+    __deviceServicesStreamController.remove(id)?.close();
+    __deviceConnectionStatusStreamController.remove(id)?.close();
+    __deviceMTUStatusStreamController.remove(id)?.close();
+
+    final notifyServices = __deviceCharacteristicNotifyEnabledStreamController.remove(id);
+    if (notifyServices != null) {
+      for (final characteristics in notifyServices.values) {
+        for (final controller in characteristics.values) {
+          controller.close();
+        }
+      }
+    }
+
+    final dataServices = __deviceCharacteristicDataStreamController.remove(id);
+    if (dataServices != null) {
+      for (final characteristics in dataServices.values) {
+        for (final controller in characteristics.values) {
+          controller.close();
+        }
+      }
+    }
+  }
+
   // Developer tools
 
   @override
