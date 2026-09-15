@@ -5,17 +5,17 @@
 
 import 'dart:async';
 
-import 'package:bluebreeze/bluebreeze_authorization.dart';
-import 'package:bluebreeze/bluebreeze_characteristic.dart';
-import 'package:bluebreeze/bluebreeze_characteristic_property.dart';
-import 'package:bluebreeze/bluebreeze_device.dart';
-import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze/bluebreeze_scan_result.dart';
-import 'package:bluebreeze/bluebreeze_service.dart';
-import 'package:bluebreeze/bluebreeze_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../bluebreeze_authorization.dart';
+import '../bluebreeze_characteristic.dart';
+import '../bluebreeze_characteristic_property.dart';
+import '../bluebreeze_device.dart';
+import '../bluebreeze_device_connection_status.dart';
+import '../bluebreeze_scan_result.dart';
+import '../bluebreeze_service.dart';
+import '../bluebreeze_state.dart';
 import 'bluebreeze_platform_interface.dart';
 
 class _ValueStreamController<T> {
@@ -140,7 +140,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
       case 'deviceMTUUpdate':
         final deviceId = methodCall.arguments['deviceId'];
         final value = methodCall.arguments['value'];
-        _deviceMTUStatusStreamController(deviceId).add(value);
+        _deviceMtuStatusStreamController(deviceId).add(value);
         return;
 
       case 'deviceCharacteristicIsNotifyingUpdate':
@@ -215,10 +215,10 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   Stream<BBScanResult> get scanResultsStream => _scanResultsStreamController.stream;
 
   @override
-  Future scanStart({List<String>? services}) => methodChannel.invokeMethod('scanStart', {'services': services});
+  Future<void> scanStart({List<String>? services}) => methodChannel.invokeMethod('scanStart', {'services': services});
 
   @override
-  Future scanStop() => methodChannel.invokeMethod('scanStop');
+  Future<void> scanStop() => methodChannel.invokeMethod('scanStop');
 
   // Devices
 
@@ -260,30 +260,30 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   // Device MTU
 
-  final __deviceMTUStatusStreamController = <String, _ValueStreamController<int>>{};
+  final __deviceMtuStatusStreamController = <String, _ValueStreamController<int>>{};
 
-  _ValueStreamController<int> _deviceMTUStatusStreamController(String id) =>
-      __deviceMTUStatusStreamController[id] ??= _ValueStreamController<int>(initialValue: 0);
-
-  @override
-  int deviceMTU(String id) => _deviceMTUStatusStreamController(id).value;
+  _ValueStreamController<int> _deviceMtuStatusStreamController(String id) =>
+      __deviceMtuStatusStreamController[id] ??= _ValueStreamController<int>(initialValue: 0);
 
   @override
-  Stream<int> deviceMTUStream(String id) => _deviceMTUStatusStreamController(id).stream;
+  int deviceMtu(String id) => _deviceMtuStatusStreamController(id).value;
+
+  @override
+  Stream<int> deviceMtuStream(String id) => _deviceMtuStatusStreamController(id).stream;
 
   // Device operation
 
   @override
-  Future deviceConnect(String id) => methodChannel.invokeMethod('deviceConnect', {'deviceId': id});
+  Future<void> deviceConnect(String id) => methodChannel.invokeMethod('deviceConnect', {'deviceId': id});
 
   @override
-  Future deviceDisconnect(String id) => methodChannel.invokeMethod('deviceDisconnect', {'deviceId': id});
+  Future<void> deviceDisconnect(String id) => methodChannel.invokeMethod('deviceDisconnect', {'deviceId': id});
 
   @override
-  Future deviceDiscoverServices(String id) => methodChannel.invokeMethod('deviceDiscoverServices', {'deviceId': id});
+  Future<void> deviceDiscoverServices(String id) => methodChannel.invokeMethod('deviceDiscoverServices', {'deviceId': id});
 
   @override
-  Future<int> deviceRequestMTU(String id, int value) async {
+  Future<int> deviceRequestMtu(String id, int value) async {
     final result = await methodChannel.invokeMethod<int>('deviceRequestMTU', {'deviceId': id, 'value': value});
     return result ?? 0;
   }
@@ -341,7 +341,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   }
 
   @override
-  Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse) =>
+  Future<void> deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse) =>
       methodChannel.invokeMethod('deviceCharacteristicWrite', {
         'deviceId': id,
         'serviceId': serviceId,
@@ -351,11 +351,11 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
       });
 
   @override
-  Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId) =>
+  Future<void> deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId) =>
       methodChannel.invokeMethod('deviceCharacteristicSubscribe', {'deviceId': id, 'serviceId': serviceId, 'characteristicId': characteristicId});
 
   @override
-  Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) =>
+  Future<void> deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId) =>
       methodChannel.invokeMethod('deviceCharacteristicUnsubscribe', {'deviceId': id, 'serviceId': serviceId, 'characteristicId': characteristicId});
 
   // Resource cleanup
@@ -364,7 +364,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   void releaseDevice(String id) {
     __deviceServicesStreamController.remove(id)?.close();
     __deviceConnectionStatusStreamController.remove(id)?.close();
-    __deviceMTUStatusStreamController.remove(id)?.close();
+    __deviceMtuStatusStreamController.remove(id)?.close();
 
     final notifyServices = __deviceCharacteristicNotifyEnabledStreamController.remove(id);
     if (notifyServices != null) {

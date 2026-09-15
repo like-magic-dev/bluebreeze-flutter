@@ -3,9 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze/bluebreeze_authorization.dart';
-import 'package:bluebreeze/bluebreeze_manager.dart';
-import 'package:bluebreeze/bluebreeze_state.dart';
+import 'package:bluebreeze/bluebreeze.dart';
 import 'package:bluebreeze_example/offline.dart';
 import 'package:bluebreeze_example/permissions.dart';
 import 'package:bluebreeze_example/scan.dart';

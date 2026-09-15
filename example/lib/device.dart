@@ -3,8 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze/bluebreeze_device.dart';
-import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
+import 'package:bluebreeze/bluebreeze.dart';
 import 'package:bluebreeze_example/characteristic.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +23,7 @@ class DeviceWidgetState extends State<DeviceWidget> {
   Future connect() async {
     await widget.device.connect();
     await widget.device.discoverServices();
-    await widget.device.requestMTU(255);
+    await widget.device.requestMtu(255);
   }
 
   Future disconnect() async {

@@ -5,14 +5,14 @@
 
 import 'dart:typed_data';
 
-import 'package:bluebreeze/bluebreeze_authorization.dart';
-import 'package:bluebreeze/bluebreeze_device.dart';
-import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze/bluebreeze_scan_result.dart';
-import 'package:bluebreeze/bluebreeze_service.dart';
-import 'package:bluebreeze/bluebreeze_state.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import '../bluebreeze_authorization.dart';
+import '../bluebreeze_device.dart';
+import '../bluebreeze_device_connection_status.dart';
+import '../bluebreeze_scan_result.dart';
+import '../bluebreeze_service.dart';
+import '../bluebreeze_state.dart';
 import 'bluebreeze_method_channel.dart';
 
 abstract class BlueBreezePlatform extends PlatformInterface {
@@ -42,9 +42,9 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<BBAuthorization> get authorizationStatusStream;
 
-  Future authorizationRequest();
+  Future<void> authorizationRequest();
 
-  Future authorizationOpenSettings();
+  Future<void> authorizationOpenSettings();
 
   // Capabilities
 
@@ -58,9 +58,9 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Stream<BBScanResult> get scanResultsStream;
 
-  Future scanStart({List<String>? services});
+  Future<void> scanStart({List<String>? services});
 
-  Future scanStop();
+  Future<void> scanStop();
 
   // Devices
 
@@ -82,19 +82,19 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // Device MTU
 
-  int deviceMTU(String id);
+  int deviceMtu(String id);
 
-  Stream<int> deviceMTUStream(String id);
+  Stream<int> deviceMtuStream(String id);
 
   // Device operations
 
-  Future deviceConnect(String id);
+  Future<void> deviceConnect(String id);
 
-  Future deviceDisconnect(String id);
+  Future<void> deviceDisconnect(String id);
 
-  Future deviceDiscoverServices(String id);
+  Future<void> deviceDiscoverServices(String id);
 
-  Future<int> deviceRequestMTU(String id, int value);
+  Future<int> deviceRequestMtu(String id, int value);
 
   // Device characteristic data
 
@@ -112,11 +112,11 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   Future<Uint8List> deviceCharacteristicRead(String id, String serviceId, String characteristicId);
 
-  Future deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse);
+  Future<void> deviceCharacteristicWrite(String id, String serviceId, String characteristicId, Uint8List value, bool withResponse);
 
-  Future deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
+  Future<void> deviceCharacteristicSubscribe(String id, String serviceId, String characteristicId);
 
-  Future deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
+  Future<void> deviceCharacteristicUnsubscribe(String id, String serviceId, String characteristicId);
 
   // Resource cleanup
 

@@ -3,8 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze/bluebreeze_manager.dart';
-import 'package:bluebreeze/bluebreeze_scan_result.dart';
+import 'package:bluebreeze/bluebreeze.dart';
 import 'package:bluebreeze_example/device.dart';
 import 'package:flutter/material.dart';
 

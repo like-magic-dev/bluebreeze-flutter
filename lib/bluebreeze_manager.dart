@@ -5,11 +5,10 @@
 
 import 'dart:async';
 
-import 'package:bluebreeze/bluebreeze_authorization.dart';
-import 'package:bluebreeze/bluebreeze_device.dart';
-import 'package:bluebreeze/bluebreeze_scan_result.dart';
-import 'package:bluebreeze/bluebreeze_state.dart';
-
+import 'bluebreeze_authorization.dart';
+import 'bluebreeze_device.dart';
+import 'bluebreeze_scan_result.dart';
+import 'bluebreeze_state.dart';
 import 'impl/bluebreeze_platform_interface.dart';
 
 class BBManager {
@@ -25,9 +24,9 @@ class BBManager {
 
   Stream<BBAuthorization> get authorizationStatusStream => BlueBreezePlatform.instance.authorizationStatusStream;
 
-  Future authorizationRequest() => BlueBreezePlatform.instance.authorizationRequest();
+  Future<void> authorizationRequest() => BlueBreezePlatform.instance.authorizationRequest();
 
-  Future authorizationOpenSettings() => BlueBreezePlatform.instance.authorizationOpenSettings();
+  Future<void> authorizationOpenSettings() => BlueBreezePlatform.instance.authorizationOpenSettings();
 
   // Capabilities
 
@@ -41,9 +40,9 @@ class BBManager {
 
   Stream<BBScanResult> get scanResultsStream => BlueBreezePlatform.instance.scanResultsStream;
 
-  Future scanStart({List<String>? services}) => BlueBreezePlatform.instance.scanStart(services: services);
+  Future<void> scanStart({List<String>? services}) => BlueBreezePlatform.instance.scanStart(services: services);
 
-  Future scanStop() => BlueBreezePlatform.instance.scanStop();
+  Future<void> scanStop() => BlueBreezePlatform.instance.scanStop();
 
   // Devices
 

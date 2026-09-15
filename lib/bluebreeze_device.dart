@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-import 'package:bluebreeze/bluebreeze_device_connection_status.dart';
-import 'package:bluebreeze/bluebreeze_service.dart';
-import 'package:bluebreeze/impl/bluebreeze_platform_interface.dart';
+import 'bluebreeze_device_connection_status.dart';
+import 'bluebreeze_service.dart';
+import 'impl/bluebreeze_platform_interface.dart';
 
 class BBDevice {
   BBDevice({
@@ -30,17 +30,17 @@ class BBDevice {
 
   // Device MTU
 
-  int get mtu => BlueBreezePlatform.instance.deviceMTU(id);
+  int get mtu => BlueBreezePlatform.instance.deviceMtu(id);
 
-  Stream<int> get mtuStream => BlueBreezePlatform.instance.deviceMTUStream(id);
+  Stream<int> get mtuStream => BlueBreezePlatform.instance.deviceMtuStream(id);
 
   // Operations
 
-  Future connect() => BlueBreezePlatform.instance.deviceConnect(id);
+  Future<void> connect() => BlueBreezePlatform.instance.deviceConnect(id);
 
-  Future disconnect() => BlueBreezePlatform.instance.deviceDisconnect(id);
+  Future<void> disconnect() => BlueBreezePlatform.instance.deviceDisconnect(id);
 
-  Future discoverServices() => BlueBreezePlatform.instance.deviceDiscoverServices(id);
+  Future<void> discoverServices() => BlueBreezePlatform.instance.deviceDiscoverServices(id);
 
-  Future<int> requestMTU(int mtu) => BlueBreezePlatform.instance.deviceRequestMTU(id, mtu);
+  Future<int> requestMtu(int mtu) => BlueBreezePlatform.instance.deviceRequestMtu(id, mtu);
 }

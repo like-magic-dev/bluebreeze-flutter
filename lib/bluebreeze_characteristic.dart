@@ -5,8 +5,8 @@
 
 import 'dart:typed_data';
 
-import 'package:bluebreeze/bluebreeze_characteristic_property.dart';
-import 'package:bluebreeze/impl/bluebreeze_platform_interface.dart';
+import 'bluebreeze_characteristic_property.dart';
+import 'impl/bluebreeze_platform_interface.dart';
 
 class BBCharacteristic {
   BBCharacteristic({
@@ -41,13 +41,20 @@ class BBCharacteristic {
 
   Future<Uint8List> read() => BlueBreezePlatform.instance.deviceCharacteristicRead(deviceId, serviceId, id);
 
-  Future write({
+  /// Writes [data] to the characteristic.
+  ///
+  /// [withResponse] selects whether to wait for the peripheral's acknowledgement
+  /// ([BBCharacteristicProperty.writeWithResponse]) or fire-and-forget
+  /// ([BBCharacteristicProperty.writeWithoutResponse]) -- only pass `false` if [properties]
+  /// contains [BBCharacteristicProperty.writeWithoutResponse]. No default: Android's native SDK
+  /// requires this explicitly too, so callers on both platforms have to make the same call.
+  Future<void> write({
     required Uint8List data,
-    bool withResponse = false,
+    required bool withResponse,
   }) =>
       BlueBreezePlatform.instance.deviceCharacteristicWrite(deviceId, serviceId, id, data, withResponse);
 
-  Future subscribe() => BlueBreezePlatform.instance.deviceCharacteristicSubscribe(deviceId, serviceId, id);
+  Future<void> subscribe() => BlueBreezePlatform.instance.deviceCharacteristicSubscribe(deviceId, serviceId, id);
 
-  Future unsubscribe() => BlueBreezePlatform.instance.deviceCharacteristicUnsubscribe(deviceId, serviceId, id);
+  Future<void> unsubscribe() => BlueBreezePlatform.instance.deviceCharacteristicUnsubscribe(deviceId, serviceId, id);
 }
