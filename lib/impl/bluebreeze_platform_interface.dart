@@ -15,6 +15,12 @@ import '../bluebreeze_service.dart';
 import '../bluebreeze_state.dart';
 import 'bluebreeze_method_channel.dart';
 
+/// The federated-plugin extension point BlueBreeze's public API (`BBManager`, `BBDevice`,
+/// `BBCharacteristic`) delegates to. [MethodChannelBlueBreeze] is the default implementation,
+/// talking to the native Android/iOS SDKs over a `MethodChannel`.
+///
+/// Most apps never touch this directly -- it exists so alternative implementations (other
+/// platform packages, or a mock for testing) can be swapped in via [instance].
 abstract class BlueBreezePlatform extends PlatformInterface {
   BlueBreezePlatform() : super(token: _token);
 
@@ -23,6 +29,10 @@ abstract class BlueBreezePlatform extends PlatformInterface {
   static final Object _token = Object();
 
   static BlueBreezePlatform _instance = MethodChannelBlueBreeze();
+
+  /// The active implementation every `BBManager`/`BBDevice`/`BBCharacteristic` call delegates
+  /// to. Defaults to [MethodChannelBlueBreeze]; set this to a different implementation (e.g.
+  /// a mock) before exercising the public API in tests.
   static BlueBreezePlatform get instance => _instance;
 
   static set instance(BlueBreezePlatform instance) {
