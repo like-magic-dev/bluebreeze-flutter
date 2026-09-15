@@ -10,7 +10,7 @@ let package = Package(
         .macOS("11.5")
     ],
     products: [
-        .library(name: "bluebreeze", targets: ["bluebreeze"])
+        .library(name: "bluebreeze", targets: ["BluebreezeFlutter", "bluebreezeShim"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
@@ -18,7 +18,13 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "bluebreeze",
+            // Named differently than the "bluebreeze" product: on case-insensitive filesystems
+            // (default macOS APFS), a target named "bluebreeze" collides with the "BlueBreeze"
+            // target from the bluebreeze-ios dependency, since Xcode derives each target's
+            // intermediate build directory from its name. `bluebreezeShim` below re-exposes this
+            // target under the "bluebreeze" header name that Flutter's generated plugin
+            // registrant expects.
+            name: "BluebreezeFlutter",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "BlueBreeze", package: "bluebreeze-ios"),
@@ -26,6 +32,14 @@ let package = Package(
             resources: [
                 .process("PrivacyInfo.xcprivacy"),
             ]
-        )
+        ),
+        .target(
+            // Header-only shim so `#import <bluebreeze/BluebreezePlugin.h>` (used by Flutter's
+            // generated GeneratedPluginRegistrant.m) resolves without needing a target literally
+            // named "bluebreeze".
+            name: "bluebreezeShim",
+            dependencies: ["BluebreezeFlutter"],
+            publicHeadersPath: "include"
+        ),
     ]
 )

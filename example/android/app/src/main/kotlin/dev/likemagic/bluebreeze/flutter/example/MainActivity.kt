@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-package dev.likemagic.bluebreeze_example
+package dev.likemagic.bluebreeze.flutter.example
 
 import io.flutter.embedding.android.FlutterActivity
 
