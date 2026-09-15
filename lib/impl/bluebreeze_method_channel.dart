@@ -43,13 +43,16 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   MethodChannelBlueBreeze() {
     methodChannel.setMethodCallHandler(methodCallHandler);
-    methodChannel.invokeMethod('initialize').then((value) {
-      _supportsExtended = (value as Map?)?['supportsExtended'] ?? false;
-    }).catchError((Object error) {
-      if (kDebugMode) {
-        print('Failed to initialize BlueBreeze: $error');
-      }
-    });
+    methodChannel
+        .invokeMethod('initialize')
+        .then((value) {
+          _supportsExtended = (value as Map?)?['supportsExtended'] ?? false;
+        })
+        .catchError((Object error) {
+          if (kDebugMode) {
+            print('Failed to initialize BlueBreeze: $error');
+          }
+        });
   }
 
   Future<dynamic> methodCallHandler(MethodCall methodCall) async {
@@ -106,7 +109,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           (v) => (v.name == methodCall.arguments['value']),
           orElse: () => BBDeviceConnectionStatus.disconnected,
         );
-        _deviceConnectionStatusStreamController(deviceId).add(value);
+        _deviceConnectionStatusController(deviceId).add(value);
         return;
 
       case 'deviceServicesUpdate':
@@ -134,13 +137,18 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           ),
         );
 
-        _deviceServicesStreamController(deviceId).add(value);
+        // Prune all controllers that belong to removed characteristics
+        _pruneRemovedCharacteristicControllers(_deviceCharacteristicNotifyEnabledControllers, deviceId, value);
+        _pruneRemovedCharacteristicControllers(_deviceCharacteristicDataControllers, deviceId, value);
+
+        _deviceServicesController(deviceId).add(value);
+
         return;
 
       case 'deviceMTUUpdate':
         final deviceId = methodCall.arguments['deviceId'];
         final value = methodCall.arguments['value'];
-        _deviceMtuStatusStreamController(deviceId).add(value);
+        _deviceMtuController(deviceId).add(value);
         return;
 
       case 'deviceCharacteristicIsNotifyingUpdate':
@@ -148,7 +156,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         final serviceId = methodCall.arguments['serviceId'];
         final characteristicId = methodCall.arguments['characteristicId'];
         final value = methodCall.arguments['value'];
-        _deviceCharacteristicNotifyEnabledStreamController(deviceId, serviceId, characteristicId).add(value);
+        _deviceCharacteristicNotifyEnabledController(deviceId, serviceId, characteristicId).add(value);
         return;
 
       case 'deviceCharacteristicDataUpdate':
@@ -156,7 +164,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         final serviceId = methodCall.arguments['serviceId'];
         final characteristicId = methodCall.arguments['characteristicId'];
         final value = methodCall.arguments['value'];
-        _deviceCharacteristicDataStreamController(deviceId, serviceId, characteristicId).add(value);
+        _deviceCharacteristicDataControllerGetOrCreate(deviceId, serviceId, characteristicId).add(value);
         return;
 
       default:
@@ -232,44 +240,41 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   // Device services
 
-  final __deviceServicesStreamController = <String, _ValueStreamController<List<BBService>>>{};
+  final _deviceServicesControllers = <String, _ValueStreamController<List<BBService>>>{};
 
-  _ValueStreamController<List<BBService>> _deviceServicesStreamController(String id) =>
-      __deviceServicesStreamController[id] ??= _ValueStreamController<List<BBService>>(initialValue: []);
-
-  @override
-  List<BBService> deviceServices(String id) => _deviceServicesStreamController(id).value;
+  _ValueStreamController<List<BBService>> _deviceServicesController(String id) =>
+      _deviceServicesControllers[id] ??= _ValueStreamController<List<BBService>>(initialValue: []);
 
   @override
-  Stream<List<BBService>> deviceServicesStream(String id) => _deviceServicesStreamController(id).stream;
+  List<BBService> deviceServices(String id) => _deviceServicesController(id).value;
+
+  @override
+  Stream<List<BBService>> deviceServicesStream(String id) => _deviceServicesController(id).stream;
 
   // Device connection status
 
-  final __deviceConnectionStatusStreamController = <String, _ValueStreamController<BBDeviceConnectionStatus>>{};
+  final _deviceConnectionStatusControllers = <String, _ValueStreamController<BBDeviceConnectionStatus>>{};
 
-  _ValueStreamController<BBDeviceConnectionStatus> _deviceConnectionStatusStreamController(String id) =>
-      __deviceConnectionStatusStreamController[id] ??= _ValueStreamController<BBDeviceConnectionStatus>(
-        initialValue: BBDeviceConnectionStatus.disconnected,
-      );
+  _ValueStreamController<BBDeviceConnectionStatus> _deviceConnectionStatusController(String id) => _deviceConnectionStatusControllers[id] ??=
+      _ValueStreamController<BBDeviceConnectionStatus>(initialValue: BBDeviceConnectionStatus.disconnected);
 
   @override
-  BBDeviceConnectionStatus deviceConnectionStatus(String id) => _deviceConnectionStatusStreamController(id).value;
+  BBDeviceConnectionStatus deviceConnectionStatus(String id) => _deviceConnectionStatusController(id).value;
 
   @override
-  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) => _deviceConnectionStatusStreamController(id).stream;
+  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) => _deviceConnectionStatusController(id).stream;
 
   // Device MTU
 
-  final __deviceMtuStatusStreamController = <String, _ValueStreamController<int>>{};
+  final _deviceMtuControllers = <String, _ValueStreamController<int>>{};
 
-  _ValueStreamController<int> _deviceMtuStatusStreamController(String id) =>
-      __deviceMtuStatusStreamController[id] ??= _ValueStreamController<int>(initialValue: 0);
-
-  @override
-  int deviceMtu(String id) => _deviceMtuStatusStreamController(id).value;
+  _ValueStreamController<int> _deviceMtuController(String id) => _deviceMtuControllers[id] ??= _ValueStreamController<int>(initialValue: 0);
 
   @override
-  Stream<int> deviceMtuStream(String id) => _deviceMtuStatusStreamController(id).stream;
+  int deviceMtu(String id) => _deviceMtuController(id).value;
+
+  @override
+  Stream<int> deviceMtuStream(String id) => _deviceMtuController(id).stream;
 
   // Device operation
 
@@ -288,45 +293,60 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     return result ?? 0;
   }
 
+  // Characteristic-scoped controllers are keyed by the flattened "deviceId:serviceId:
+  // characteristicId" triple rather than a 3-level nested map, mirroring the equivalent tracking
+  // map in the React Native implementation (BlueBreezeModule.kt's `trackingKey`). Device ids
+  // (Android MAC addresses, iOS UUIDs) are fixed-length, so a key can't be mistaken for another
+  // device's prefix.
+  String _characteristicKey(String id, String serviceId, String characteristicId) => '$id:$serviceId:$characteristicId';
+
   // Device characteristic notify enabled
 
-  final __deviceCharacteristicNotifyEnabledStreamController = <String, Map<String, Map<String, _ValueStreamController<bool>>>>{};
+  final _deviceCharacteristicNotifyEnabledControllers = <String, _ValueStreamController<bool>>{};
 
-  _ValueStreamController<bool> _deviceCharacteristicNotifyEnabledStreamController(String id, String serviceId, String characteristicId) {
-    __deviceCharacteristicNotifyEnabledStreamController[id] ??= {};
-    __deviceCharacteristicNotifyEnabledStreamController[id]![serviceId] ??= {};
-    return __deviceCharacteristicNotifyEnabledStreamController[id]![serviceId]![characteristicId] ??= _ValueStreamController<bool>(
-      initialValue: false,
-    );
-  }
+  _ValueStreamController<bool> _deviceCharacteristicNotifyEnabledController(String id, String serviceId, String characteristicId) =>
+      _deviceCharacteristicNotifyEnabledControllers[_characteristicKey(id, serviceId, characteristicId)] ??= _ValueStreamController<bool>(
+        initialValue: false,
+      );
 
   @override
   bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicNotifyEnabledStreamController(id, serviceId, characteristicId).value;
+      _deviceCharacteristicNotifyEnabledController(id, serviceId, characteristicId).value;
 
   @override
   Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicNotifyEnabledStreamController(id, serviceId, characteristicId).stream;
+      _deviceCharacteristicNotifyEnabledController(id, serviceId, characteristicId).stream;
 
   // Device characteristic data
 
-  final __deviceCharacteristicDataStreamController = <String, Map<String, Map<String, _ValueStreamController<Uint8List>>>>{};
+  final _deviceCharacteristicDataControllers = <String, _ValueStreamController<Uint8List>>{};
 
-  _ValueStreamController<Uint8List> _deviceCharacteristicDataStreamController(String id, String serviceId, String characteristicId) {
-    __deviceCharacteristicDataStreamController[id] ??= {};
-    __deviceCharacteristicDataStreamController[id]![serviceId] ??= {};
-    return __deviceCharacteristicDataStreamController[id]![serviceId]![characteristicId] ??= _ValueStreamController<Uint8List>(
-      initialValue: Uint8List(0),
-    );
+  _ValueStreamController<Uint8List> _deviceCharacteristicDataControllerGetOrCreate(String id, String serviceId, String characteristicId) =>
+      _deviceCharacteristicDataControllers[_characteristicKey(id, serviceId, characteristicId)] ??= _ValueStreamController<Uint8List>(
+        initialValue: Uint8List(0),
+      );
+
+  void _pruneRemovedCharacteristicControllers<T>(Map<String, _ValueStreamController<T>> controllers, String id, List<BBService> services) {
+    final validDeviceKeys = <String>{
+      for (final service in services)
+        for (final characteristic in service.characteristics) _characteristicKey(id, service.id, characteristic.id),
+    };
+
+    final allDeviceKeys = controllers.keys.where((key) => key.startsWith('$id:')).toSet();
+    for (final key in allDeviceKeys) {
+      if (!validDeviceKeys.contains(key)) {
+        controllers.remove(key)?.close();
+      }
+    }
   }
 
   @override
   Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicDataStreamController(id, serviceId, characteristicId).value;
+      _deviceCharacteristicDataControllerGetOrCreate(id, serviceId, characteristicId).value;
 
   @override
   Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicDataStreamController(id, serviceId, characteristicId).stream;
+      _deviceCharacteristicDataControllerGetOrCreate(id, serviceId, characteristicId).stream;
 
   // Device characteristic operations
 
@@ -362,25 +382,19 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   @override
   void releaseDevice(String id) {
-    __deviceServicesStreamController.remove(id)?.close();
-    __deviceConnectionStatusStreamController.remove(id)?.close();
-    __deviceMtuStatusStreamController.remove(id)?.close();
+    _deviceServicesControllers.remove(id)?.close();
+    _deviceConnectionStatusControllers.remove(id)?.close();
+    _deviceMtuControllers.remove(id)?.close();
 
-    final notifyServices = __deviceCharacteristicNotifyEnabledStreamController.remove(id);
-    if (notifyServices != null) {
-      for (final characteristics in notifyServices.values) {
-        for (final controller in characteristics.values) {
-          controller.close();
-        }
+    final devicePrefix = '$id:';
+    for (final key in _deviceCharacteristicNotifyEnabledControllers.keys.toList()) {
+      if (key.startsWith(devicePrefix)) {
+        _deviceCharacteristicNotifyEnabledControllers.remove(key)?.close();
       }
     }
-
-    final dataServices = __deviceCharacteristicDataStreamController.remove(id);
-    if (dataServices != null) {
-      for (final characteristics in dataServices.values) {
-        for (final controller in characteristics.values) {
-          controller.close();
-        }
+    for (final key in _deviceCharacteristicDataControllers.keys.toList()) {
+      if (key.startsWith(devicePrefix)) {
+        _deviceCharacteristicDataControllers.remove(key)?.close();
       }
     }
   }
