@@ -2,9 +2,15 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
 # Run `pod lib lint bluebreeze.podspec` to validate before publishing.
 #
+require 'yaml'
+
+# Reads this package's own version from pubspec.yaml (the single source of truth, updated by
+# tools/bump_version.py) instead of duplicating it here where it could drift out of sync.
+pubspec = YAML.load_file(File.join(__dir__, '..', 'pubspec.yaml'))
+
 Pod::Spec.new do |s|
   s.name             = 'bluebreeze'
-  s.version          = '0.0.21'
+  s.version          = pubspec['version']
   s.summary          = 'BlueBreeze Flutter SDK.'
   s.description      = <<-DESC
 A modern Bluetooth LE library.
