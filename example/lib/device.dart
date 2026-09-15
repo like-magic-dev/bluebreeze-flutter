@@ -4,7 +4,7 @@
 //
 
 import 'package:bluebreeze/bluebreeze.dart';
-import 'package:bluebreeze_example/characteristic.dart';
+import 'package:bluebreeze_example/service.dart';
 import 'package:flutter/material.dart';
 
 class DeviceWidget extends StatefulWidget {
@@ -63,33 +63,7 @@ class DeviceWidgetState extends State<DeviceWidget> {
           return ListView.builder(
             itemCount: services.length,
             itemBuilder: (context, index) {
-              final service = services[index];
-              final characteristics = service.characteristics;
-              characteristics.sort((a, b) => a.id.compareTo(b.id));
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      service.name ?? service.id,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemCount: characteristics.length,
-                    itemBuilder: (context, index) {
-                      final characteristic = characteristics[index];
-                      return CharacteristicWidget(characteristic: characteristic);
-                    },
-                  )
-                ],
-              );
+              return ServiceView(service: services[index]);
             },
           );
         },
