@@ -173,7 +173,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -182,7 +182,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.connect()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -192,7 +192,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -201,7 +201,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.disconnect()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -211,7 +211,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -220,7 +220,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.discoverServices()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -230,7 +230,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -241,7 +241,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.negotiateMTU()
                     result(device.mtu.value)
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -253,13 +253,13 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -268,7 +268,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     let value = try await characteristic.read()
                     result(value ?? Data())
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -282,13 +282,13 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let value = arguments["value"] as? FlutterStandardTypedData,
                 let withResponse = arguments["withResponse"] as? Bool
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -297,7 +297,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.write(value.data, withResponse: withResponse)
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -309,13 +309,13 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -324,7 +324,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.subscribe()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -336,13 +336,13 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -351,7 +351,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.unsubscribe()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
