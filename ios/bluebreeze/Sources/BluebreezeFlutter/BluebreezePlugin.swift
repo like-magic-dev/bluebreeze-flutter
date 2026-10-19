@@ -173,7 +173,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -192,7 +192,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -211,7 +211,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -230,7 +230,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let uuid = UUID(uuidString: uuidString),
                 let device = manager.devices.value[uuid]
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -253,7 +253,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -282,7 +282,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let value = arguments["value"] as? FlutterStandardTypedData,
                 let withResponse = arguments["withResponse"] as? Bool
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -309,7 +309,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
@@ -336,7 +336,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                 let serviceUuidString = arguments["serviceId"] as? String,
                 let characteristicUuidString = arguments["characteristicId"] as? String
             else {
-                result(FlutterError(code: "Bad arguments", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Bad arguments", details: call.arguments))
                 return
             }
 
