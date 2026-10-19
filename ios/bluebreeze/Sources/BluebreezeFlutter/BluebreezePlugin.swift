@@ -259,7 +259,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -288,7 +288,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -315,7 +315,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
@@ -342,7 +342,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
             guard let characteristic = findCharacteristic(device, serviceUuidString, characteristicUuidString)
             else {
-                result(FlutterError(code: "Characteristic not found", message: nil, details: nil))
+                result(FlutterError(code: "Native error", message: "Characteristic \(serviceUuidString)/\(characteristicUuidString) not found", details: nil))
                 return
             }
 
