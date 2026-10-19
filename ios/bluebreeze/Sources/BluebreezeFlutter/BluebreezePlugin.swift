@@ -182,7 +182,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.connect()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -201,7 +201,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.disconnect()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -220,7 +220,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.discoverServices()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -241,7 +241,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await device.negotiateMTU()
                     result(device.mtu.value)
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -268,7 +268,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     let value = try await characteristic.read()
                     result(value ?? Data())
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -297,7 +297,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.write(value.data, withResponse: withResponse)
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -324,7 +324,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.subscribe()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
@@ -351,7 +351,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     try await characteristic.unsubscribe()
                     result([:])
                 } catch {
-                    result(FlutterError(code: "Error", message: nil, details: nil))
+                    result(FlutterError(code: "Native error", message: error.localizedDescription, details: nil))
                 }
             }
 
