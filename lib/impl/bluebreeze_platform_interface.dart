@@ -10,6 +10,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import '../bluebreeze_authorization.dart';
 import '../bluebreeze_device.dart';
 import '../bluebreeze_device_connection_status.dart';
+import '../bluebreeze_observable.dart';
 import '../bluebreeze_scan_result.dart';
 import '../bluebreeze_service.dart';
 import '../bluebreeze_state.dart';
@@ -42,15 +43,11 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // State
 
-  BBState get state;
-
-  Stream<BBState> get stateStream;
+  BBObservable<BBState> get state;
 
   // Authorization
 
-  BBAuthorization get authorizationStatus;
-
-  Stream<BBAuthorization> get authorizationStatusStream;
+  BBObservable<BBAuthorization> get authorizationStatus;
 
   Future<void> authorizationRequest();
 
@@ -62,9 +59,7 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // Scan
 
-  bool get scanEnabled;
-
-  Stream<bool> get scanEnabledStream;
+  BBObservable<bool> get scanEnabled;
 
   Stream<BBScanResult> get scanResultsStream;
 
@@ -74,27 +69,19 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // Devices
 
-  Map<String, BBDevice> get devices;
-
-  Stream<Map<String, BBDevice>> get devicesStream;
+  BBObservable<Map<String, BBDevice>> get devices;
 
   // Device services
 
-  List<BBService> deviceServices(String id);
-
-  Stream<List<BBService>> deviceServicesStream(String id);
+  BBObservable<List<BBService>> deviceServices(String id);
 
   // Device connection status
 
-  BBDeviceConnectionStatus deviceConnectionStatus(String id);
-
-  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id);
+  BBObservable<BBDeviceConnectionStatus> deviceConnectionStatus(String id);
 
   // Device MTU
 
-  int deviceMtu(String id);
-
-  Stream<int> deviceMtuStream(String id);
+  BBObservable<int> deviceMtu(String id);
 
   // Device operations
 
@@ -108,15 +95,11 @@ abstract class BlueBreezePlatform extends PlatformInterface {
 
   // Device characteristic data
 
-  Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId);
-
-  Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId);
+  BBObservable<Uint8List> deviceCharacteristicData(String id, String serviceId, String characteristicId);
 
   // Device characteristic notify enabled
 
-  bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId);
-
-  Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId);
+  BBObservable<bool> deviceCharacteristicIsNotifying(String id, String serviceId, String characteristicId);
 
   // Device characteristic operations
 

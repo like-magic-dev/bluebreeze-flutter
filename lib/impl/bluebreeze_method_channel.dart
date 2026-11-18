@@ -13,19 +13,34 @@ import '../bluebreeze_characteristic.dart';
 import '../bluebreeze_characteristic_property.dart';
 import '../bluebreeze_device.dart';
 import '../bluebreeze_device_connection_status.dart';
+import '../bluebreeze_observable.dart';
 import '../bluebreeze_scan_result.dart';
 import '../bluebreeze_service.dart';
 import '../bluebreeze_state.dart';
 import 'bluebreeze_platform_interface.dart';
 
-class _ValueStreamController<T> {
+class _ValueStreamController<T> implements BBObservable<T> {
   final _controller = StreamController<T>.broadcast();
   T _value;
 
-  _ValueStreamController({required T initialValue}) : _value = initialValue;
+  _ValueStreamController({required T initialValue}) : _value = initialValue {
+    // Each listener of a Stream.multi gets its own callback, so the current value can be
+    // delivered to that listener alone before forwarding the shared broadcast stream.
+    values = Stream<T>.multi((listener) {
+      listener.add(_value);
+      final subscription = _controller.stream.listen(listener.add, onError: listener.addError, onDone: listener.close);
+      listener.onCancel = subscription.cancel;
+    }, isBroadcast: true);
+  }
 
+  @override
+  late final Stream<T> values;
+
+  @override
   T get value => _value;
-  Stream<T> get stream => _controller.stream;
+
+  @override
+  Stream<T> get updates => _controller.stream;
 
   void add(T value) {
     _value = value;
@@ -77,7 +92,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
           return;
         }
 
-        final device = devices[data['id']];
+        final device = devices.value[data['id']];
         if (device == null) {
           return;
         }
@@ -138,7 +153,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         );
 
         // Prune all controllers that belong to removed characteristics
-        _pruneRemovedCharacteristicControllers(_deviceCharacteristicNotifyEnabledControllers, deviceId, value);
+        _pruneRemovedCharacteristicControllers(_deviceCharacteristicIsNotifyingControllers, deviceId, value);
         _pruneRemovedCharacteristicControllers(_deviceCharacteristicDataControllers, deviceId, value);
 
         _deviceServicesController(deviceId).add(value);
@@ -156,7 +171,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
         final serviceId = methodCall.arguments['serviceId'];
         final characteristicId = methodCall.arguments['characteristicId'];
         final value = methodCall.arguments['value'];
-        _deviceCharacteristicNotifyEnabledController(deviceId, serviceId, characteristicId).add(value);
+        _deviceCharacteristicIsNotifyingController(deviceId, serviceId, characteristicId).add(value);
         return;
 
       case 'deviceCharacteristicDataUpdate':
@@ -179,20 +194,14 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   final _stateStreamController = _ValueStreamController<BBState>(initialValue: BBState.unknown);
 
   @override
-  BBState get state => _stateStreamController.value;
-
-  @override
-  Stream<BBState> get stateStream => _stateStreamController.stream;
+  BBObservable<BBState> get state => _stateStreamController;
 
   // Authorization
 
   final _authorizationStatusStreamController = _ValueStreamController<BBAuthorization>(initialValue: BBAuthorization.unknown);
 
   @override
-  BBAuthorization get authorizationStatus => _authorizationStatusStreamController.value;
-
-  @override
-  Stream<BBAuthorization> get authorizationStatusStream => _authorizationStatusStreamController.stream;
+  BBObservable<BBAuthorization> get authorizationStatus => _authorizationStatusStreamController;
 
   @override
   Future<void> authorizationRequest() => methodChannel.invokeMethod('authorizationRequest');
@@ -212,10 +221,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   final _scanEnabledStreamController = _ValueStreamController<bool>(initialValue: false);
 
   @override
-  bool get scanEnabled => _scanEnabledStreamController._value;
-
-  @override
-  Stream<bool> get scanEnabledStream => _scanEnabledStreamController.stream;
+  BBObservable<bool> get scanEnabled => _scanEnabledStreamController;
 
   final _scanResultsStreamController = StreamController<BBScanResult>.broadcast();
 
@@ -233,10 +239,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   final _devicesStreamController = _ValueStreamController<Map<String, BBDevice>>(initialValue: {});
 
   @override
-  Map<String, BBDevice> get devices => _devicesStreamController.value;
-
-  @override
-  Stream<Map<String, BBDevice>> get devicesStream => _devicesStreamController.stream;
+  BBObservable<Map<String, BBDevice>> get devices => _devicesStreamController;
 
   // Device services
 
@@ -246,10 +249,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
       _deviceServicesControllers[id] ??= _ValueStreamController<List<BBService>>(initialValue: []);
 
   @override
-  List<BBService> deviceServices(String id) => _deviceServicesController(id).value;
-
-  @override
-  Stream<List<BBService>> deviceServicesStream(String id) => _deviceServicesController(id).stream;
+  BBObservable<List<BBService>> deviceServices(String id) => _deviceServicesController(id);
 
   // Device connection status
 
@@ -259,10 +259,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
       _ValueStreamController<BBDeviceConnectionStatus>(initialValue: BBDeviceConnectionStatus.disconnected);
 
   @override
-  BBDeviceConnectionStatus deviceConnectionStatus(String id) => _deviceConnectionStatusController(id).value;
-
-  @override
-  Stream<BBDeviceConnectionStatus> deviceConnectionStatusStream(String id) => _deviceConnectionStatusController(id).stream;
+  BBObservable<BBDeviceConnectionStatus> deviceConnectionStatus(String id) => _deviceConnectionStatusController(id);
 
   // Device MTU
 
@@ -271,10 +268,7 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   _ValueStreamController<int> _deviceMtuController(String id) => _deviceMtuControllers[id] ??= _ValueStreamController<int>(initialValue: 0);
 
   @override
-  int deviceMtu(String id) => _deviceMtuController(id).value;
-
-  @override
-  Stream<int> deviceMtuStream(String id) => _deviceMtuController(id).stream;
+  BBObservable<int> deviceMtu(String id) => _deviceMtuController(id);
 
   // Device operation
 
@@ -302,20 +296,16 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
 
   // Device characteristic notify enabled
 
-  final _deviceCharacteristicNotifyEnabledControllers = <String, _ValueStreamController<bool>>{};
+  final _deviceCharacteristicIsNotifyingControllers = <String, _ValueStreamController<bool>>{};
 
-  _ValueStreamController<bool> _deviceCharacteristicNotifyEnabledController(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicNotifyEnabledControllers[_characteristicKey(id, serviceId, characteristicId)] ??= _ValueStreamController<bool>(
+  _ValueStreamController<bool> _deviceCharacteristicIsNotifyingController(String id, String serviceId, String characteristicId) =>
+      _deviceCharacteristicIsNotifyingControllers[_characteristicKey(id, serviceId, characteristicId)] ??= _ValueStreamController<bool>(
         initialValue: false,
       );
 
   @override
-  bool deviceCharacteristicNotifyEnabled(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicNotifyEnabledController(id, serviceId, characteristicId).value;
-
-  @override
-  Stream<bool> deviceCharacteristicNotifyEnabledStream(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicNotifyEnabledController(id, serviceId, characteristicId).stream;
+  BBObservable<bool> deviceCharacteristicIsNotifying(String id, String serviceId, String characteristicId) =>
+      _deviceCharacteristicIsNotifyingController(id, serviceId, characteristicId);
 
   // Device characteristic data
 
@@ -341,12 +331,8 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
   }
 
   @override
-  Uint8List deviceCharacteristicData(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicDataControllerGetOrCreate(id, serviceId, characteristicId).value;
-
-  @override
-  Stream<Uint8List> deviceCharacteristicDataStream(String id, String serviceId, String characteristicId) =>
-      _deviceCharacteristicDataControllerGetOrCreate(id, serviceId, characteristicId).stream;
+  BBObservable<Uint8List> deviceCharacteristicData(String id, String serviceId, String characteristicId) =>
+      _deviceCharacteristicDataControllerGetOrCreate(id, serviceId, characteristicId);
 
   // Device characteristic operations
 
@@ -387,9 +373,9 @@ class MethodChannelBlueBreeze extends BlueBreezePlatform {
     _deviceMtuControllers.remove(id)?.close();
 
     final devicePrefix = '$id:';
-    for (final key in _deviceCharacteristicNotifyEnabledControllers.keys.toList()) {
+    for (final key in _deviceCharacteristicIsNotifyingControllers.keys.toList()) {
       if (key.startsWith(devicePrefix)) {
-        _deviceCharacteristicNotifyEnabledControllers.remove(key)?.close();
+        _deviceCharacteristicIsNotifyingControllers.remove(key)?.close();
       }
     }
     for (final key in _deviceCharacteristicDataControllers.keys.toList()) {

@@ -39,15 +39,15 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: StreamBuilder(
-        stream: widget.manager.authorizationStatusStream,
+        stream: widget.manager.authorizationStatus.updates,
         builder: (builderContext, snapshot) {
-          if (widget.manager.authorizationStatus != BBAuthorization.authorized) {
+          if (widget.manager.authorizationStatus.value != BBAuthorization.authorized) {
             return PermissionsWidget(manager: widget.manager);
           } else {
             return StreamBuilder(
-              stream: widget.manager.stateStream,
+              stream: widget.manager.state.updates,
               builder: (builderContext, snapshot) {
-                if (widget.manager.state != BBState.poweredOn) {
+                if (widget.manager.state.value != BBState.poweredOn) {
                   return const OfflineWidget();
                 } else {
                   return ScanWidget(manager: widget.manager);

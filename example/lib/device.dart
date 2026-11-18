@@ -37,9 +37,9 @@ class DeviceWidgetState extends State<DeviceWidget> {
         title: Text(widget.device.name ?? widget.device.id),
         actions: [
           StreamBuilder(
-            stream: widget.device.connectionStatusStream,
+            stream: widget.device.connectionStatus.updates,
             builder: (builderContext, snapshot) {
-              if (widget.device.connectionStatus == BBDeviceConnectionStatus.connected) {
+              if (widget.device.connectionStatus.value == BBDeviceConnectionStatus.connected) {
                 return TextButton(
                   onPressed: () => disconnect(),
                   child: const Text("DISCONNECT"),
@@ -55,9 +55,9 @@ class DeviceWidgetState extends State<DeviceWidget> {
         ],
       ),
       body: StreamBuilder(
-        stream: widget.device.servicesStream,
+        stream: widget.device.services.updates,
         builder: (builderContext, snapshot) {
-          final services = widget.device.services;
+          final services = widget.device.services.value;
           services.sort((a, b) => a.id.compareTo(b.id));
 
           return ListView.builder(

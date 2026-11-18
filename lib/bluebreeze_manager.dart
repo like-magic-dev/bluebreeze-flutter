@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'bluebreeze_authorization.dart';
 import 'bluebreeze_device.dart';
+import 'bluebreeze_observable.dart';
 import 'bluebreeze_scan_result.dart';
 import 'bluebreeze_state.dart';
 import 'impl/bluebreeze_platform_interface.dart';
@@ -15,12 +16,12 @@ import 'impl/bluebreeze_platform_interface.dart';
 /// discovers peripherals as [BBDevice] instances.
 ///
 /// Create and retain a single `BBManager` for the lifetime of your app (or feature). All of
-/// its state is exposed as `Stream`s so your UI can observe it reactively:
+/// its state is exposed as [BBObservable]s so your UI can observe it reactively:
 ///
 /// ```dart
 /// final manager = BBManager();
 ///
-/// manager.stateStream.listen((state) {
+/// manager.state.values.listen((state) {
 ///   if (state == BBState.poweredOn) {
 ///     manager.scanStart();
 ///   }
@@ -35,19 +36,13 @@ class BBManager {
 
   /// The Bluetooth adapter's current power state. Scanning and connecting require
   /// [BBState.poweredOn].
-  BBState get state => BlueBreezePlatform.instance.state;
-
-  /// Notifies with the updated [state] every time it changes.
-  Stream<BBState> get stateStream => BlueBreezePlatform.instance.stateStream;
+  BBObservable<BBState> get state => BlueBreezePlatform.instance.state;
 
   // Authorization
 
   /// The app's current authorization status for the Bluetooth permissions BlueBreeze needs.
   /// Call [authorizationRequest] to request them if this isn't [BBAuthorization.authorized].
-  BBAuthorization get authorizationStatus => BlueBreezePlatform.instance.authorizationStatus;
-
-  /// Notifies with the updated [authorizationStatus] every time it changes.
-  Stream<BBAuthorization> get authorizationStatusStream => BlueBreezePlatform.instance.authorizationStatusStream;
+  BBObservable<BBAuthorization> get authorizationStatus => BlueBreezePlatform.instance.authorizationStatus;
 
   /// Requests every permission BlueBreeze needs, updating [authorizationStatus] with the
   /// result.
@@ -68,14 +63,10 @@ class BBManager {
 
   /// Whether a scan is currently active. Reflects [scanStart]/[scanStop], and flips to `false`
   /// on its own if the adapter powers off or the system stops the scan for another reason.
-  bool get scanEnabled => BlueBreezePlatform.instance.scanEnabled;
-
-  /// Notifies with the updated [scanEnabled] every time it changes.
-  Stream<bool> get scanEnabledStream => BlueBreezePlatform.instance.scanEnabledStream;
+  BBObservable<bool> get scanEnabled => BlueBreezePlatform.instance.scanEnabled;
 
   /// Every advertisement seen while scanning, including repeats from the same peripheral.
-  /// Only delivered to listeners while they're actively listening -- there's no replay, unlike
-  /// [devicesStream]/[stateStream].
+  /// Only delivered to listeners while they're actively listening, there's no replay.
   Stream<BBScanResult> get scanResultsStream => BlueBreezePlatform.instance.scanResultsStream;
 
   /// Starts scanning for BLE advertisements, updating [scanEnabled] and delivering results on
@@ -94,10 +85,7 @@ class BBManager {
   /// first time it's seen in a scan result and then reused for every subsequent sighting,
   /// connect, and disconnect -- use this (or [BBScanResult.device]) rather than constructing
   /// your own.
-  Map<String, BBDevice> get devices => BlueBreezePlatform.instance.devices;
-
-  /// Notifies with the updated [devices] map every time a new device is discovered.
-  Stream<Map<String, BBDevice>> get devicesStream => BlueBreezePlatform.instance.devicesStream;
+  BBObservable<Map<String, BBDevice>> get devices => BlueBreezePlatform.instance.devices;
 
   // Cleanup
 

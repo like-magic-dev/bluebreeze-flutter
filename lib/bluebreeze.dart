@@ -15,6 +15,7 @@ export 'bluebreeze_characteristic_property.dart';
 export 'bluebreeze_device.dart';
 export 'bluebreeze_device_connection_status.dart';
 export 'bluebreeze_manager.dart';
+export 'bluebreeze_observable.dart';
 export 'bluebreeze_scan_result.dart';
 export 'bluebreeze_service.dart';
 export 'bluebreeze_state.dart';

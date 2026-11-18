@@ -4,6 +4,7 @@
 //
 
 import 'bluebreeze_device_connection_status.dart';
+import 'bluebreeze_observable.dart';
 import 'bluebreeze_service.dart';
 import 'impl/bluebreeze_platform_interface.dart';
 
@@ -38,29 +39,20 @@ class BBDevice {
   // Services
 
   /// Services discovered so far. Empty until [discoverServices] has been called and completed.
-  List<BBService> get services => BlueBreezePlatform.instance.deviceServices(id);
-
-  /// Notifies with the updated [services] list every time it changes.
-  Stream<List<BBService>> get servicesStream => BlueBreezePlatform.instance.deviceServicesStream(id);
+  BBObservable<List<BBService>> get services => BlueBreezePlatform.instance.deviceServices(id);
 
   // Connection status
 
   /// The device's current connection state. Updates automatically on connect, disconnect, and
   /// unexpected link loss -- you don't need to poll it after calling [connect]/[disconnect].
-  BBDeviceConnectionStatus get connectionStatus => BlueBreezePlatform.instance.deviceConnectionStatus(id);
-
-  /// Notifies with the updated [connectionStatus] every time it changes.
-  Stream<BBDeviceConnectionStatus> get connectionStatusStream => BlueBreezePlatform.instance.deviceConnectionStatusStream(id);
+  BBObservable<BBDeviceConnectionStatus> get connectionStatus => BlueBreezePlatform.instance.deviceConnectionStatus(id);
 
   // Device MTU
 
   /// The negotiated ATT MTU (Maximum Transmission Unit) in bytes, i.e. the largest amount of
   /// data that can be sent in a single read/write. Defaults to the BLE minimum until
   /// [requestMtu] is called and awaited.
-  int get mtu => BlueBreezePlatform.instance.deviceMtu(id);
-
-  /// Notifies with the updated [mtu] every time it changes.
-  Stream<int> get mtuStream => BlueBreezePlatform.instance.deviceMtuStream(id);
+  BBObservable<int> get mtu => BlueBreezePlatform.instance.deviceMtu(id);
 
   // Operations
 
