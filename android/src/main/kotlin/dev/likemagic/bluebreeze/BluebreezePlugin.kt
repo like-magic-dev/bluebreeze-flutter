@@ -93,19 +93,19 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun initialize() {
         coroutineScope.launch {
-            manager.state.collect {
+            manager.state.values.collect {
                 reportState(it)
             }
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
-            manager.authorizationStatus.collect {
+            manager.authorizationStatus.values.collect {
                 reportAuthorizationStatus(it)
             }
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
-            manager.scanEnabled.collect {
+            manager.scanEnabled.values.collect {
                 reportScanEnabled(it)
             }
         }.storeIn(coroutineJobs)
@@ -117,7 +117,7 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }.storeIn(coroutineJobs)
 
         coroutineScope.launch {
-            manager.devices.collect {
+            manager.devices.values.collect {
                 it.values.forEach { device -> initializeDevice(device) }
                 reportDevices(it)
             }
@@ -133,20 +133,20 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         coroutineDeviceJobs[device.address] = coroutineDeviceJobsList
 
         coroutineScope.launch {
-            device.connectionStatus.collect {
+            device.connectionStatus.values.collect {
                 reportDeviceConnectionStatus(device, it)
             }
         }.storeIn(coroutineDeviceJobsList)
 
         coroutineScope.launch {
-            device.services.collect {
+            device.services.values.collect {
                 initializeServices(device, it)
                 reportDeviceServices(device, it)
             }
         }.storeIn(coroutineDeviceJobsList)
 
         coroutineScope.launch {
-            device.mtu.collect {
+            device.mtu.values.collect {
                 reportDeviceMTU(device, it)
             }
         }.storeIn(coroutineDeviceJobsList)
@@ -181,13 +181,13 @@ class BluebreezePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 coroutineDeviceServiceJobsMap[characteristic.uuid] = coroutineCharacteristicJobsList
 
                 coroutineScope.launch {
-                    characteristic.isNotifying.collect {
+                    characteristic.isNotifying.values.collect {
                         reportDeviceCharacteristicIsNotifying(device, service, characteristic, it)
                     }
                 }.storeIn(coroutineCharacteristicJobsList)
 
                 coroutineScope.launch {
-                    characteristic.data.collect {
+                    characteristic.data.values.collect {
                         reportDeviceCharacteristicData(device, service, characteristic, it)
                     }
                 }.storeIn(coroutineCharacteristicJobsList)
