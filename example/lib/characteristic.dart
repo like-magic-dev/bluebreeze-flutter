@@ -40,9 +40,9 @@ class CharacteristicWidgetState extends State<CharacteristicWidget> {
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 StreamBuilder(
-                  stream: widget.characteristic.dataStream,
+                  stream: widget.characteristic.data.updates,
                   builder: (builderContext, snapshot) {
-                    final data = widget.characteristic.data;
+                    final data = widget.characteristic.data.value;
                     return Text(data.isEmpty ? '-' : data.hexString);
                   },
                 ),
@@ -107,9 +107,9 @@ class CharacteristicWidgetState extends State<CharacteristicWidget> {
                 ),
               if (widget.characteristic.properties.contains(BBCharacteristicProperty.notify))
                 StreamBuilder(
-                  stream: widget.characteristic.notifyEnabledStream,
+                  stream: widget.characteristic.isNotifying.updates,
                   builder: (builderContext, snapshot) {
-                    if (widget.characteristic.notifyEnabled) {
+                    if (widget.characteristic.isNotifying.value) {
                       return TextButton(
                         onPressed: () => widget.characteristic.unsubscribe(),
                         child: const Text('UNSUBSCRIBE'),

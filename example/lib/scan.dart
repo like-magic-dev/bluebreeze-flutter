@@ -42,9 +42,9 @@ class ScanWidgetState extends State<ScanWidget> {
         ),
         actions: [
           StreamBuilder(
-            stream: widget.manager.scanEnabledStream,
+            stream: widget.manager.scanEnabled.updates,
             builder: (builderContext, snapshot) {
-              if (widget.manager.scanEnabled) {
+              if (widget.manager.scanEnabled.value) {
                 return TextButton(
                   onPressed: () => widget.manager.scanStop(),
                   child: const Text("STOP"),

@@ -29,12 +29,12 @@ class PermissionsWidgetState extends State<PermissionsWidget> {
         child: Column(
           children: [
             const Text('The app is not authorized'),
-            if (widget.manager.authorizationStatus == BBAuthorization.unknown)
+            if (widget.manager.authorizationStatus.value == BBAuthorization.unknown)
               TextButton(
                 onPressed: () => widget.manager.authorizationRequest(),
                 child: const Text('Request Authorization'),
               ),
-            if (widget.manager.authorizationStatus == BBAuthorization.denied)
+            if (widget.manager.authorizationStatus.value == BBAuthorization.denied)
               TextButton(
                 onPressed: () => widget.manager.authorizationOpenSettings(),
                 child: const Text('Open Settings'),

@@ -12,7 +12,8 @@ correlation, per-device request queuing -- happens natively; from Dart you just 
 and `await` operations.
 
 - **Reactive state** -- adapter power, authorization, discovered devices, connection status,
-  services, and characteristic data are all exposed as `Stream`s you can listen to reactively.
+  services, and characteristic data are all exposed as `BBObservable`s: read the current `value`,
+  listen to its `values` (the current value, then new ones), or only to its `updates`.
 - **`Future`-based operations** -- connect, discover services, read, write, and
   subscribe/unsubscribe are all `async` calls with a built-in timeout enforced natively, instead
   of platform callbacks you have to correlate yourself.
@@ -71,7 +72,7 @@ if (manager.authorizationStatus != BBAuthorization.authorized) {
   manager.authorizationRequest();
 }
 
-manager.stateStream.listen((state) {
+manager.state.values.listen((state) {
   if (state == BBState.poweredOn) {
     manager.scanStart();
   }
@@ -84,13 +85,13 @@ manager.scanResultsStream.listen((result) {
 
 // Connect, discover, and talk to a device
 Future<void> connectToFirstDevice() async {
-  if (manager.devices.isEmpty) return;
-  final device = manager.devices.values.first;
+  if (manager.devices.value.isEmpty) return;
+  final device = manager.devices.value.values.first;
 
   await device.connect();
   await device.discoverServices();
 
-  for (final service in device.services) {
+  for (final service in device.services.value) {
     for (final characteristic in service.characteristics) {
       if (characteristic.properties.contains(BBCharacteristicProperty.read)) {
         final data = await characteristic.read();
@@ -101,6 +102,25 @@ Future<void> connectToFirstDevice() async {
 
   await device.disconnect();
 }
+```
+
+### Observing state
+
+Every piece of state is a `BBObservable`, which you can query in three ways:
+
+```dart
+characteristic.data.value;                       // the current value
+characteristic.data.values.listen((data) {});   // the current value, then new values
+characteristic.data.updates.listen((data) {});  // only values that arrive from now on
+```
+
+For example, to receive notifications:
+
+```dart
+characteristic.data.updates.listen((data) {
+  print('${characteristic.id} $data');
+});
+await characteristic.subscribe();
 ```
 
 See [`example`](example) for a full app built on top of BlueBreeze.

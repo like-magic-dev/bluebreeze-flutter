@@ -20,17 +20,17 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
         self.channel = channel
         super.init()
 
-        manager.state
+        manager.state.values
             .receive(on: DispatchQueue.main)
             .sink { self.reportState($0) }
             .store(in: &dispatchBag)
 
-        manager.authorizationStatus
+        manager.authorizationStatus.values
             .receive(on: DispatchQueue.main)
             .sink { self.reportAuthorizationStatus($0) }
             .store(in: &dispatchBag)
 
-        manager.scanEnabled
+        manager.scanEnabled.values
             .receive(on: DispatchQueue.main)
             .sink { self.reportScanEnabled($0) }
             .store(in: &dispatchBag)
@@ -42,7 +42,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
             }
             .store(in: &dispatchBag)
 
-        manager.devices
+        manager.devices.values
             .receive(on: DispatchQueue.main)
             .sink {
                 $0.forEach { self.initDevice($0.value) }
@@ -58,12 +58,12 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
         dispatchBagDevices[device.id] = []
 
-        device.connectionStatus
+        device.connectionStatus.values
             .receive(on: DispatchQueue.main)
             .sink { self.reportDeviceConnectionStatus(device.id, $0) }
             .store(in: &dispatchBagDevices[device.id]!)
 
-        device.services
+        device.services.values
             .receive(on: DispatchQueue.main)
             .sink {
                 self.initServices(device, $0)
@@ -71,7 +71,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
             }
             .store(in: &dispatchBagDevices[device.id]!)
 
-        device.mtu
+        device.mtu.values
             .receive(on: DispatchQueue.main)
             .sink { self.reportDeviceMTU(device.id, $0) }
             .store(in: &dispatchBagDevices[device.id]!)
@@ -107,7 +107,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
 
                 dispatchBagServices[device.id]![serviceId]![characteristic.uuid] = []
 
-                characteristic.isNotifying
+                characteristic.isNotifying.values
                     .receive(on: DispatchQueue.main)
                     .sink {
                         self.reportDeviceCharacteristicIsNotifying(
@@ -115,7 +115,7 @@ public class BluebreezePlugin: NSObject, FlutterPlugin {
                     }
                     .store(in: &dispatchBagServices[device.id]![serviceId]![characteristic.uuid]!)
 
-                characteristic.data
+                characteristic.data.values
                     .receive(on: DispatchQueue.main)
                     .compactMap { $0 }
                     .sink {
